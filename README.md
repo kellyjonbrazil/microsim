@@ -6,7 +6,7 @@ Also available on Docker Hub:
 
 This application generates traffic between simulated microservices using JSON over HTTP. Many parameters can be set on the client and server apps (`microsimserver` and `microsimclient`) to specify the listening port, the amount of traffic generated, whether requests are sent to the internet, whether certain application attacks are sent, and whether malware is downloaded. You can also set the client and server to kill themselves after a number of seconds.
 
-All parameters are set via environment variables. Uset parameters will use the defaults:
+All parameters are set via environment variables. Unset parameters will use the defaults:
 
 `microsimserver`
 
