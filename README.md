@@ -22,7 +22,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 
 | Parameter        | Values          | Default  | Description                                     |
 | ---------------- |-----------------| ---------| ------------------------------------------------|
-| REQUEST_URLS     | "http:/www.example.com,http://www.server.com" | None      | One or more comma separated URLs to send requests to |
+| REQUEST_URLS     | "http:/www.example.com,http://www.server.com" | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
 | REQUEST_INTERNET | True/False      | False    | Send regular requests to the internet if True   |
 | REQUEST_MALWARE  | True/False      | False    | Occasionally download an eicar sample from the internet |
 | SEND_SQLI        | True/False      | False    | Occasionally send SQLi to the REQUEST_URLS |
