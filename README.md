@@ -1,5 +1,7 @@
 # microsim
 
+The purpose of this project is to be able to easily set up kubernetes deployments with somewhat realistic/controllable traffic and attacks to test load balancing, WAF, and other security solutions in the cluster.
+
 Also available on Docker Hub:
 
 https://hub.docker.com/r/kellybrazil/microsimserver
@@ -70,9 +72,7 @@ $ curl -X POST localhost:8080/this_is_the_path | jq .
   "data": "3BbTvDWTD7yWBsWkffiTft5V875EpldKSehv2uXvUSHgl6Sjjl"
 }
 ```
-The `data` field is randomly generated text. The number of characters is controled with the `RESPOND_BYTES` parameter.
-
-The `microsimclient` similarly `POST`s a `data` field in the request which is filled with randomly generated text. The number of characters is controled with the `REQUEST_BYTES` parameter.
+The `data` field is randomly generated text. The number of characters is controlled with the `RESPOND_BYTES` parameter.
 
 If a normal `GET` request is sent, then the response will look like this:
 ```
@@ -80,4 +80,7 @@ $ curl localhost:8080/this_is_the_path
 f0QRurmXLiuungowUkQMJf3z687BDgsUpV3Lupaln2WUH4egk007En3m11lIurSwcekiI1PqhyRHpzPzYB
 Sat Aug 17 15:42:29 2019   hostname: laptop.local   ip: 192.168.1.221   remote: 127.0.0.1   hostheader: localhost:8080   path: /this_is_the_path
 ```
+
 In this case, the first line is the `data` field sent from the `microsimserver`.
+
+The `microsimclient` similarly POST's a `data` field in the request body which is filled with randomly generated text. The number of characters is controled with the `REQUEST_BYTES` parameter.
