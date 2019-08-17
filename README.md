@@ -9,6 +9,7 @@ This application generates traffic between simulated microservices using JSON ov
 All parameters are set via environment variables. Uset parameters will use the defaults:
 
 `microsimserver`
+
 | Parameter        | Values          | Default  | Description                                     |
 | ---------------- |-----------------| ---------| ------------------------------------------------|
 | LISTEN_PORT      | 1 - 65535       | 8080     | Port the HTTP server listens on                 |
@@ -16,6 +17,7 @@ All parameters are set via environment variables. Uset parameters will use the d
 | STOP_SECONDS     | 0 - ?           | 0 (never stop) | Kill the server after x seconds           |
 
 `microsimclient`
+
 | Parameter        | Values          | Default  | Description                                     |
 | ---------------- |-----------------| ---------| ------------------------------------------------|
 | REQUEST_URLS     | "http:/www.example.com,http://www.server.com" | None      | One or more comma separated URLs to send requests to |
