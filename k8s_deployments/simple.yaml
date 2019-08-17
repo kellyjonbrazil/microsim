@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: www
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: www
+    spec:
+      containers:
+        - name: microsimserver
+          image: kellybrazil/microsimserver
+          ports:
+            - containerPort: 8080
+        - name: microsimclient
+          image: kellybrazil/microsimclient
+          env:
+          - name: REQUEST_URLS
+            value: "http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"
+          - name: REQUEST_INTERNET
+            value: True
+          - name: SEND_SQLI
+            value: True
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: microsimserver
+          image: kellybrazil/microsimserver
+          ports:
+            - containerPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: microsimserver
+          image: kellybrazil/microsimserver
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: www
+  name: www
+spec:
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: www
+  sessionAffinity: None
+  type: LoadBalancer 
