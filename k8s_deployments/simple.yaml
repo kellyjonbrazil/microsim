@@ -72,4 +72,32 @@ spec:
   selector:
     app: www
   sessionAffinity: None
-  type: LoadBalancer 
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: auth
+  name: auth
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: auth
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db
+  name: db
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: db
+  sessionAffinity: None
