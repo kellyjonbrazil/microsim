@@ -12,6 +12,8 @@
 #    -e REQUEST_WAIT_SECONDS=1 \
 #    -e REQUEST_BYTES=128 \
 #    -e STOP_SECONDS=300 \
+#    -e ATTACK_PROBABILITY=0.001 \
+#    -e EGRESS_PROBABILITY=0.1 \
 #    kellybrazil/microsimclient
 
 FROM python:3.7-alpine

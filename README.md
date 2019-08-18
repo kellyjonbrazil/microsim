@@ -35,6 +35,10 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
 | `REQUEST_WAIT_SECONDS`  | `1` - ?             | `3`        | Number of seconds to wait between request loop runs       |
 | `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
+| `ATTACK_PROBABILITY`    | `0.001` (float)     | `0.001`    | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
+| `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
+| `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds                     |
+
 
 Example docker commands:
 ```
@@ -57,6 +61,8 @@ docker run -d --rm \
     -e SEND_DGA=True \
     -e REQUEST_WAIT_SECONDS=3 \
     -e REQUEST_BYTES=128 \
+    -e ATTACK_PROBABILITY=0.01 \
+    -e EGRESS_PROBABILITY=0.3 \
     -e STOP_SECONDS=300 \
     kellybrazil/microsimclient
 ```
