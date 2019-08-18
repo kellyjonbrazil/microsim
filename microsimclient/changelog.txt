@@ -1,4 +1,8 @@
 microsimclient changelog
 
+20190818 v0.2
+- add ATTACK_PROBABILITY parameter
+- add EGRESS_PROBABILITY parameter
+
 20190817 v0.1
 - Initial release

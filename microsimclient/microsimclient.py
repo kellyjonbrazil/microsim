@@ -18,9 +18,9 @@ SEND_DGA = os.getenv('SEND_DGA', False)
 REQUEST_WAIT_SECONDS = int(os.getenv('REQUEST_WAIT_SECONDS', 3))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
-
+ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.001))
+EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 START_TIME = int(time.time())
-PERCENTAGE_CHANCE = 0.001
 
 def keep_running():
     if not REQUEST_URLS:
@@ -47,7 +47,7 @@ while keep_running():
             print(str(e) + ' error to: ' + url)
 
         if SEND_SQLI:
-            if random.random() < PERCENTAGE_CHANCE:
+            if random.random() < ATTACK_PROBABILITY:
                 parameters = {
                     'username': 'joe@example.com',
                     'password': ';UNION SELECT 1, version() limit 1,1--'
@@ -60,7 +60,7 @@ while keep_running():
                     print(str(e) + ' error to: ' + url)
 
         if SEND_XSS:
-            if random.random() < PERCENTAGE_CHANCE:
+            if random.random() < ATTACK_PROBABILITY:
                 parameters = {
                     'username': 'joe@example.com',
                     'password': "pwd<script>alert('attacked')</script>"
@@ -73,7 +73,7 @@ while keep_running():
                     print(str(e) + ' error to: ' + url)
 
         if SEND_DIR_TRAVERSAL:
-            if random.random() < PERCENTAGE_CHANCE:
+            if random.random() < ATTACK_PROBABILITY:
                 parameters = {
                     'username': 'joe@example.com',
                     'password': '../../../../../passwd'
@@ -86,16 +86,17 @@ while keep_running():
                     print(str(e) + ' error to: ' + url)
 
     if REQUEST_INTERNET:
-        fortinet = requests.Session()
-        
-        try:
-            fortinet = fortinet.get('http://www.fortinet.com', allow_redirects=True)
-            print('Internet request to: ' + fortinet.url)
-        except Exception as e:
-            print(str(e) + ' error to: ' + url)
+        if random.random() < EGRESS_PROBABILITY:
+            fortinet = requests.Session()
+            
+            try:
+                fortinet = fortinet.get('http://www.fortinet.com', allow_redirects=True)
+                print('Internet request to: ' + fortinet.url)
+            except Exception as e:
+                print(str(e) + ' error to: ' + url)
 
     if REQUEST_MALWARE:
-        if random.random() < PERCENTAGE_CHANCE:
+        if random.random() < ATTACK_PROBABILITY:
             eicar = requests.Session()
             
             try:
@@ -105,7 +106,7 @@ while keep_running():
                 print(str(e) + ' error to: ' + url)
 
     if SEND_DGA:
-        if random.random() < PERCENTAGE_CHANCE:
+        if random.random() < ATTACK_PROBABILITY:
             dga_domains = [
                 't3622c4773260c097e2e9b26705212ab85.ws',
                 'u83ccf36d9f02e9ea79a9d16c0336677e4.to',
