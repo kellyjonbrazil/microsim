@@ -63,14 +63,14 @@ docker run -d --rm \
 
 Example response from the `microsimserver`:
 ```
-$ curl -X POST localhost:8080/this_is_the_path | jq .
+$ curl -X POST localhost:8080/any_arbitrary_path | jq .
 {
   "time": "Sat Aug 17 15:34:09 2019",
   "hostname": "laptop.local",
   "ip": "192.168.1.221",
   "remote": "127.0.0.1",
   "hostheader": "localhost:8080",
-  "path": "/this_is_the_path",
+  "path": "/any_arbitrary_path",
   "data": "3BbTvDWTD7yWBsWkffiTft5V875EpldKSehv2uXvUSHgl6Sjjl"
 }
 ```
@@ -78,9 +78,9 @@ The `data` field is randomly generated text. The number of characters is control
 
 If a normal `GET` request is sent, then the response will look like this:
 ```
-$ curl localhost:8080/this_is_the_path
+$ curl localhost:8080/any_arbitrary_path
 f0QRurmXLiuungowUkQMJf3z687BDgsUpV3Lupaln2WUH4egk007En3m11lIurSwcekiI1PqhyRHpzPzYB
-Sat Aug 17 15:42:29 2019   hostname: laptop.local   ip: 192.168.1.221   remote: 127.0.0.1   hostheader: localhost:8080   path: /this_is_the_path
+Sat Aug 17 15:42:29 2019   hostname: laptop.local   ip: 192.168.1.221   remote: 127.0.0.1   hostheader: localhost:8080   path: /any_arbitrary_path
 ```
 
 In this case, the first line is the `data` field sent from the `microsimserver`.
