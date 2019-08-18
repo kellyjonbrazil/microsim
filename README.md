@@ -10,29 +10,31 @@ https://hub.docker.com/r/kellybrazil/microsimclient
 
 This application generates traffic between simulated microservices using JSON over HTTP. Many parameters can be set on the client and server apps (`microsimserver` and `microsimclient`) to specify the listening port, the amount of traffic generated, whether requests are sent to the internet, whether certain application attacks are sent, and whether malware is downloaded. You can also set the client and server to kill themselves after a number of seconds.
 
+Sample Kubernetes deployments can be found in the https://github.com/kellyjonbrazil/microsim/tree/master/k8s_deployments folder.
+
 All parameters are set via environment variables. Unset parameters will use the defaults:
 
 `microsimserver`
 
-| Parameter        | Values          | Default  | Description                                     |
-| ---------------- |-----------------| ---------| ------------------------------------------------|
-| LISTEN_PORT      | 1 - 65535       | 8080     | Port the HTTP server listens on                 |
-| RESPOND_BYTES    | 1 - ?           | 16384    | How many data bytes are added to the response   |
-| STOP_SECONDS     | 0 - ?           | 0 (never stop) | Kill the server after x seconds           |
+| Parameter          | Values          | Default          | Description                                     |
+| ------------------ |-----------------| -----------------| ------------------------------------------------|
+| `LISTEN_PORT`      | `1` - `65535`   | `8080`           | Port the HTTP server listens on                 |
+| `RESPOND_BYTES`    | `1` - ?         | `16384`          | How many data bytes are added to the response   |
+| `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds           |
 
 `microsimclient`
 
-| Parameter        | Values          | Default  | Description                                     |
-| ---------------- |-----------------| ---------| ------------------------------------------------|
-| REQUEST_URLS     | "http:/www.example.com,http://www.server.com" | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
-| REQUEST_INTERNET | True/False      | False    | Send regular requests to the internet if True   |
-| REQUEST_MALWARE  | True/False      | False    | Occasionally download an eicar sample from the internet |
-| SEND_SQLI        | True/False      | False    | Occasionally send SQLi to the REQUEST_URLS |
-| SEND_XSS         | True/False      | False    | Occasionally send XSS to the REQUEST_URLS |
-| SEND_DIR_TRAVERSAL | True/False    | False   | Occasionally send Directory Traversal to the REQUEST_URLS |
-| SEND_DGA         | True/False      | False    | Occasionally send DGA DNS requests to the resolver |
-| REQUEST_WAIT_SECONDS | 1 - ?     | 3    | Number of seconds to wait between request loop runs |
-| REQUEST_BYTES    | 1 - 7980      | 1024       | How many data bytes are added to the request |
+| Parameter             | Values          | Default  | Description                                     |
+| --------------------- |-----------------| ---------| ------------------------------------------------|
+| `REQUEST_URLS`          | `"http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"` | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
+| `REQUEST_INTERNET`      | `True`/`False`      | `False`    | Send regular requests to the internet if True             |
+| `REQUEST_MALWARE`       | `True`/`False`      | `False`    | Occasionally download an eicar sample from the internet   |
+| `SEND_SQLI`             | `True`/`False`      | `False`    | Occasionally send SQLi to the REQUEST_URLS                |
+| `SEND_XSS`              | `True`/`False`      | `False`    | Occasionally send XSS to the REQUEST_URLS                 |
+| `SEND_DIR_TRAVERSAL`    | `True`/`False`      | `False`    | Occasionally send Directory Traversal to the REQUEST_URLS |
+| `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
+| `REQUEST_WAIT_SECONDS`  | `1` - ?             | `3`        | Number of seconds to wait between request loop runs       |
+| `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
 
 Example docker commands:
 ```

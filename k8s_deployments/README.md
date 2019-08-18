@@ -1,6 +1,6 @@
 # Kubernetes Deployments
 
-These deployments have been tested on Google Kubernetes Engine (GKE). Simply copy/paste the YAML file into your Google Console via `vim` and run the following to run the deployment:
+These deployments have been tested on Google Kubernetes Engine (GKE). Simply copy/paste the YAML file into your Google Console with `vi` and run the following to run the deployment:
 
 ```
 kubectl create -f deployment.yaml
