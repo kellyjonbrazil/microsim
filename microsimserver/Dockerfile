@@ -16,4 +16,4 @@ COPY microsimserver.py /app
 
 WORKDIR /app
 
-CMD [ "python", "./microsimserver.py" ]
+CMD [ "python", "-u", "./microsimserver.py" ]

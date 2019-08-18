@@ -17,9 +17,10 @@
 FROM python:3.7-alpine
 
 RUN mkdir /app
+RUN pip install requests
 
 COPY microsimclient.py /app
 
 WORKDIR /app
 
-CMD [ "python", "./microsimclient.py" ]
+CMD [ "python", "-u", "./microsimclient.py" ]
