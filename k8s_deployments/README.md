@@ -16,3 +16,4 @@ kubectl delete -f deployment.yaml
 
 This deployment simulates a simple web app that communicates via JSON/HTTP to back-end authentication and database services.
 
+!(https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/simple_deployment.png)
