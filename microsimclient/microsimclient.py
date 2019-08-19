@@ -18,9 +18,54 @@ SEND_DGA = os.getenv('SEND_DGA', False)
 REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 3.0))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
-ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.001))
+ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.005))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 START_TIME = int(time.time())
+
+class state():
+    last_timestamp = START_TIME
+
+stats = {
+    'Total': {
+        'Requests': 0,
+        'Sent Bytes': 0,
+        'Received Bytes': 0,
+        'Internet Requests': 0,
+        'Attacks': 0,
+        'SQLi': 0,
+        'XSS': 0,
+        'Directory Traversal': 0,
+        'DGA': 0,
+        'Malware': 0,
+        'Error': 0
+    },
+    'Last 30 Seconds': {
+        'Requests': 0,
+        'Sent Bytes': 0,
+        'Received Bytes': 0,
+        'Internet Requests': 0,
+        'Attacks': 0,
+        'SQLi': 0,
+        'XSS': 0,
+        'Directory Traversal': 0,
+        'DGA': 0,
+        'Malware': 0,
+        'Error': 0
+    }
+}
+
+def print_stats():
+    print()
+    print('Statistics:')
+    print(json.dumps(stats, indent=2))
+    print()
+
+def every_30_seconds():
+    if state.last_timestamp + 30 > int(time.time()):
+        return False
+
+    state.last_timestamp = int(time.time())
+    return True
 
 def keep_running():
     if not REQUEST_URLS:
@@ -34,17 +79,40 @@ def insert_data():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(REQUEST_BYTES)])
 
 while keep_running():
+    if every_30_seconds():
+        print_stats()
+        stats['Last 30 Seconds'] = {
+            'Requests': 0,
+            'Sent Bytes': 0,
+            'Received Bytes': 0,
+            'Internet Requests': 0,
+            'Attacks': 0,
+            'SQLi': 0,
+            'XSS': 0,
+            'Directory Traversal': 0,
+            'DGA': 0,
+            'Malware': 0,
+            'Error': 0
+        }
+
     url_list = REQUEST_URLS.split(',')
 
-    json_body = {}
-    json_body['data'] = insert_data()
+    json_body = {'data': insert_data()}
 
     for url in url_list:
         try:
             response = requests.post(url, json=json_body)
             print('Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
+            stats['Total']['Requests'] += 1
+            stats['Last 30 Seconds']['Requests'] += 1
+            stats['Total']['Sent Bytes'] += len(response.request.body)
+            stats['Last 30 Seconds']['Sent Bytes'] += len(response.request.body)
+            stats['Total']['Received Bytes'] += len(response.content)
+            stats['Last 30 Seconds']['Received Bytes'] += len(response.content)
         except Exception as e:
             print(str(e) + ' error to: ' + url)
+            stats['Total']['Error'] += 1
+            stats['Last 30 Seconds']['Error'] += 1
 
         if SEND_SQLI:
             if random.random() < ATTACK_PROBABILITY:
@@ -56,8 +124,14 @@ while keep_running():
                 try:
                     sqli = requests.get(url, params=parameters)
                     print('SQLi sent: ' + sqli.url)
+                    stats['Total']['SQLi'] += 1
+                    stats['Last 30 Seconds']['SQLi'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
                 except Exception as e:
                     print(str(e) + ' error to: ' + url)
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
         if SEND_XSS:
             if random.random() < ATTACK_PROBABILITY:
@@ -69,8 +143,14 @@ while keep_running():
                 try:
                     xss = requests.get(url, params=parameters)
                     print('XSS sent: ' + xss.url)
+                    stats['Total']['XSS'] += 1
+                    stats['Last 30 Seconds']['XSS'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
                 except Exception as e:
                     print(str(e) + ' error to: ' + url)
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
         if SEND_DIR_TRAVERSAL:
             if random.random() < ATTACK_PROBABILITY:
@@ -82,8 +162,14 @@ while keep_running():
                 try:
                     dirtraversal = requests.get(url, params=parameters)
                     print('Directory Traversal sent: ' + dirtraversal.url)
+                    stats['Total']['Directory Traversal'] += 1
+                    stats['Last 30 Seconds']['Directory Traversal'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
                 except Exception as e:
                     print(str(e) + ' error to: ' + url)
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
     if REQUEST_INTERNET:
         if random.random() < EGRESS_PROBABILITY:
@@ -92,8 +178,12 @@ while keep_running():
             try:
                 fortinet = fortinet.get('http://www.fortinet.com', allow_redirects=True)
                 print('Internet request to: ' + fortinet.url)
+                stats['Total']['Internet Requests'] += 1
+                stats['Last 30 Seconds']['Internet Requests'] += 1
             except Exception as e:
                 print(str(e) + ' error to: ' + url)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
     if REQUEST_MALWARE:
         if random.random() < ATTACK_PROBABILITY:
@@ -102,8 +192,14 @@ while keep_running():
             try:
                 eicar = eicar.get('http://www.eicar.org/download/eicar.com.txt')
                 print('Malware downloaded: ' + eicar.text)
+                stats['Total']['Malware'] += 1
+                stats['Last 30 Seconds']['Malware'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
             except Exception as e:
                 print(str(e) + ' error to: ' + url)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
     if SEND_DGA:
         if random.random() < ATTACK_PROBABILITY:
@@ -116,12 +212,18 @@ while keep_running():
                 'yf32d9ac7f0a9f463e8da4736b12d7044a.tk'
             ]
 
-            try:
-                for dga in dga_domains:
+            for dga in dga_domains:
+                try:
                     dga_response = socket.gethostbyname(dga)
                     print('DGA query sent: ' + dga + '   Response: ' + dga_response)
-            except Exception as e:
-                print(str(e) + ' error to: ' + url)
+                    stats['Total']['DGA'] += 1
+                    stats['Last 30 Seconds']['DGA'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
+                except Exception as e:
+                    print(str(e) + ' error to: ' + url)
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
     time.sleep(REQUEST_WAIT_SECONDS)
 
