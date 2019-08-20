@@ -5,8 +5,10 @@ import socket
 import time
 import random
 import string
+import re
 import json
 import threading
+import urllib.parse
 from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -21,7 +23,11 @@ stats = {
     'Total': {
         'Requests': 0,
         'Sent Bytes': 0,
-        'Received Bytes': 0
+        'Received Bytes': 0,
+        'Attacks': 0,
+        'SQLi': 0,
+        'XSS': 0,
+        'Directory Traversal': 0
     }
 }
 
@@ -50,8 +56,21 @@ class httpd(BaseHTTPRequestHandler):
         info = time.asctime() + '   hostname: ' + self.server_name + '   ip: ' + self.server_ip + '   remote: ' + self.address_string() + '   hostheader: ' + str(host_header) + '   path: ' + self.path + '\n'
         body = data + info
         self.wfile.write(body.encode('utf-8'))
+
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
+        if re.search('UNION SELECT', urllib.parse.unquote_plus(self.path)):
+            print('SQLi attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['SQLi'] += 1
+        if re.search('<script>alert', urllib.parse.unquote(self.path)):
+            print('XSS attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['XSS'] += 1
+        if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
+            print('Directory Traversal attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['Directory Traversal'] += 1
 
     def do_POST(self):
         """json api response"""
@@ -73,6 +92,18 @@ class httpd(BaseHTTPRequestHandler):
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
         stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
+        if re.search(';UNION SELECT 1, version() limit 1,1--', urllib.parse.unquote(self.path)):
+            print('SQLi attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['SQLi'] += 1
+        if re.search("pwd<script>alert('attacked')</script>", urllib.parse.unquote(self.path)):
+            print('XSS attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['XSS'] += 1
+        if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
+            print('Directory Traversal attack detected')
+            stats['Total']['Attacks'] += 1
+            stats['Total']['Directory Traversal'] += 1
 
 class stats_httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
