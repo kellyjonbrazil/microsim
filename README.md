@@ -33,9 +33,9 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `SEND_XSS`              | `True`/`False`      | `False`    | Occasionally send XSS to the REQUEST_URLS                 |
 | `SEND_DIR_TRAVERSAL`    | `True`/`False`      | `False`    | Occasionally send Directory Traversal to the REQUEST_URLS |
 | `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
-| `REQUEST_WAIT_SECONDS`  | `1` - ?             | `3`        | Number of seconds to wait between request loop runs       |
+| `REQUEST_WAIT_SECONDS`  | `0.01` - ? (float)  | `3`        | Number of seconds to wait between request loop runs       |
 | `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
-| `ATTACK_PROBABILITY`    | `0.001` (float)     | `0.001`    | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
+| `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
 | `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
 | `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds                     |
 
@@ -43,7 +43,8 @@ All parameters are set via environment variables. Unset parameters will use the 
 Example docker commands:
 ```
 docker run -d --rm \
-    -e LISTEN_PORT=5000 \
+    -e LISTEN_PORT=8080 \
+    -e STATS_PORT=5001 \
     -e RESPOND_BYTES=1024 \
     -e STOP_SECONDS=300 \
     -p 5000:5000 \
@@ -52,6 +53,7 @@ docker run -d --rm \
 
 ```
 docker run -d --rm \
+    -e STATS_PORT=5000 \
     -e REQUEST_URLS="http://service1.default.svc.cluster.local:8080,http://service2.default.svc.cluster.local:5000" \
     -e REQUEST_INTERNET=True \
     -e REQUEST_MALWARE=True \
@@ -59,9 +61,9 @@ docker run -d --rm \
     -e SEND_DIR_TRAVERSAL=True \
     -e SEND_XSS=True \
     -e SEND_DGA=True \
-    -e REQUEST_WAIT_SECONDS=3 \
+    -e REQUEST_WAIT_SECONDS=0.5 \
     -e REQUEST_BYTES=128 \
-    -e ATTACK_PROBABILITY=0.01 \
+    -e ATTACK_PROBABILITY=0.05 \
     -e EGRESS_PROBABILITY=0.3 \
     -e STOP_SECONDS=300 \
     kellybrazil/microsimclient
