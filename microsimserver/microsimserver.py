@@ -60,13 +60,13 @@ class httpd(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.response = {
+            'data': insert_data(),
             'time': time.asctime(),
             'hostname': self.server_name,
             'ip': self.server_ip,
             'remote': self.address_string(),
             'hostheader': host_header,
-            'path': self.path,
-            'data': insert_data()
+            'path': self.path
         }
         body = json.dumps(self.response)
         self.wfile.write(body.encode('utf-8'))
@@ -79,7 +79,6 @@ class stats_httpd(BaseHTTPRequestHandler):
     server_ip = socket.gethostbyname(server_name)
 
     def do_GET(self):
-        """json api response"""
         host_header = self.headers['Host']
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
