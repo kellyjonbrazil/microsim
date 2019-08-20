@@ -47,7 +47,7 @@ docker run -d --rm \
     -e STATS_PORT=5001 \
     -e RESPOND_BYTES=1024 \
     -e STOP_SECONDS=300 \
-    -p 5000:5000 \
+    -p 8080:8080 \
     kellybrazil/microsimserver
 ```
 
