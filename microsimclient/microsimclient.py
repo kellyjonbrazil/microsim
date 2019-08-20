@@ -72,6 +72,7 @@ class httpd(BaseHTTPRequestHandler):
             'ip': self.server_ip,
             'stats': stats['Total'],
             'config': {
+                'STATS_PORT': STATS_PORT,
                 'REQUEST_URLS': REQUEST_URLS,
                 'REQUEST_INTERNET': REQUEST_INTERNET,
                 'REQUEST_MALWARE': REQUEST_MALWARE,

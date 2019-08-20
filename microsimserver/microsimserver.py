@@ -38,8 +38,6 @@ class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
 
 class httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
-    # for mac compatibility
-    server_name = server_name + '.local'
     server_ip = socket.gethostbyname(server_name)
 
     def do_GET(self):
@@ -80,8 +78,6 @@ class httpd(BaseHTTPRequestHandler):
 
 class stats_httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
-    # for mac compatibility
-    server_name = server_name + '.local'
     server_ip = socket.gethostbyname(server_name)
 
     def do_GET(self):
