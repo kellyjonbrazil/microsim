@@ -18,7 +18,7 @@ SEND_DGA = os.getenv('SEND_DGA', False)
 REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 3.0))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
-ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.005))
+ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 START_TIME = int(time.time())
 
