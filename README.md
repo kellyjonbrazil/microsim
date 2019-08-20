@@ -75,13 +75,13 @@ Example response from the `microsimserver`:
 ```
 $ curl -X POST localhost:8080/any_arbitrary_path | jq .
 {
+  "data": "3BbTvDWTD7yWBsWkffiTft5V875EpldKSehv2uXvUSHgl6Sjjl",
   "time": "Sat Aug 17 15:34:09 2019",
   "hostname": "laptop.local",
   "ip": "192.168.1.221",
   "remote": "127.0.0.1",
   "hostheader": "localhost:8080",
-  "path": "/any_arbitrary_path",
-  "data": "3BbTvDWTD7yWBsWkffiTft5V875EpldKSehv2uXvUSHgl6Sjjl"
+  "path": "/any_arbitrary_path"
 }
 ```
 The `data` field is randomly generated text. The number of characters is controlled with the `RESPOND_BYTES` parameter.
