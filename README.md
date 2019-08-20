@@ -19,6 +19,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | Parameter          | Values          | Default          | Description                                     |
 | ------------------ |-----------------| -----------------| ------------------------------------------------|
 | `LISTEN_PORT`      | `1` - `65535`   | `8080`           | Port the HTTP server listens on                 |
+| `STATS_PORT`       | `1` - `65535`   | None             | Enable the stats server running on the specified port |
 | `RESPOND_BYTES`    | `1` - ?         | `16384`          | How many data bytes are added to the response   |
 | `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds           |
 
@@ -26,6 +27,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 
 | Parameter             | Values          | Default  | Description                                     |
 | --------------------- |-----------------| ---------| ------------------------------------------------|
+| `STATS_PORT`          | `1` - `65535`   | None     | Enable the stats server running on the specified port |
 | `REQUEST_URLS`          | `"http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"` | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
 | `REQUEST_INTERNET`      | `True`/`False`      | `False`    | Send regular requests to the internet if True             |
 | `REQUEST_MALWARE`       | `True`/`False`      | `False`    | Occasionally download an eicar sample from the internet   |
