@@ -70,11 +70,9 @@ class httpd(BaseHTTPRequestHandler):
         }
         body = json.dumps(self.response)
         self.wfile.write(body.encode('utf-8'))
-        content_length = int(self.headers['Content-Length'])
-        received_bytes = len(self.rfile.read(content_length))
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
-        stats['Total']['Received Bytes'] += received_bytes
+        stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
 
 class stats_httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
