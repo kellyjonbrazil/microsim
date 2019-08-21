@@ -10,19 +10,24 @@ import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-REQUEST_URLS = os.getenv('REQUEST_URLS', False)
-REQUEST_INTERNET = os.getenv('REQUEST_INTERNET', False)
-REQUEST_MALWARE = os.getenv('REQUEST_MALWARE', False)
-SEND_SQLI = os.getenv('SEND_SQLI', False)
-SEND_DIR_TRAVERSAL = os.getenv('SEND_DIR_TRAVERSAL', False)
-SEND_XSS = os.getenv('SEND_XSS', False)
-SEND_DGA = os.getenv('SEND_DGA', False)
+def str2bool(val):
+    if val and val.lower() != 'false':
+        return bool(val)
+    return False
+
+REQUEST_URLS = os.getenv('REQUEST_URLS', None)
+REQUEST_INTERNET = str2bool(os.getenv('REQUEST_INTERNET', False))
+REQUEST_MALWARE = str2bool(os.getenv('REQUEST_MALWARE', False))
+SEND_SQLI = str2bool(os.getenv('SEND_SQLI', False))
+SEND_DIR_TRAVERSAL = str2bool(os.getenv('SEND_DIR_TRAVERSAL', False))
+SEND_XSS = str2bool(os.getenv('SEND_XSS', False))
+SEND_DGA = str2bool(os.getenv('SEND_DGA', False))
 REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 3.0))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
-STATS_PORT = int(os.getenv('STATS_PORT', False))
+STATS_PORT = os.getenv('STATS_PORT', None)
 START_TIME = int(time.time())
 HOST_NAME = ''
 
@@ -72,7 +77,7 @@ class httpd(BaseHTTPRequestHandler):
             'ip': self.server_ip,
             'stats': stats['Total'],
             'config': {
-                'STATS_PORT': STATS_PORT,
+                'STATS_PORT': int(STATS_PORT),
                 'REQUEST_URLS': REQUEST_URLS,
                 'REQUEST_INTERNET': REQUEST_INTERNET,
                 'REQUEST_MALWARE': REQUEST_MALWARE,
@@ -113,7 +118,7 @@ def insert_data():
 
 def statistics_server():
     if STATS_PORT:
-        stats_server = HTTPServer((HOST_NAME, STATS_PORT), httpd)
+        stats_server = HTTPServer((HOST_NAME, int(STATS_PORT)), httpd)
         stats_server.serve_forever()
 
 def main():
@@ -252,19 +257,20 @@ def main():
                     'yf32d9ac7f0a9f463e8da4736b12d7044a.tk'
                 ]
 
-                for dga in dga_domains:
-                    try:
-                        dga_response = socket.gethostbyname(dga)
-                        print('DGA query sent: ' + dga + '   Response: ' + dga_response)
-                        stats['Total']['DGA'] += 1
-                        stats['Last 30 Seconds']['DGA'] += 1
-                        stats['Total']['Attacks'] += 1
-                        stats['Last 30 Seconds']['Attacks'] += 1
-                        time.sleep(REQUEST_WAIT_SECONDS)
-                    except Exception as e:
-                        print(str(e) + ' error resolving: ' + dga)
-                        stats['Total']['Error'] += 1
-                        stats['Last 30 Seconds']['Error'] += 1
+                dga = random.choice(dga_domains)
+
+                try:
+                    dga_response = socket.gethostbyname(dga)
+                    print('DGA query sent: ' + dga + '   Response: ' + dga_response)
+                    stats['Total']['DGA'] += 1
+                    stats['Last 30 Seconds']['DGA'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
+                    time.sleep(REQUEST_WAIT_SECONDS)
+                except Exception as e:
+                    print(str(e) + ' error resolving: ' + dga)
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
         time.sleep(REQUEST_WAIT_SECONDS)
 
