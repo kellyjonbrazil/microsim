@@ -13,7 +13,7 @@ from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 LISTEN_PORT = int(os.getenv('LISTEN_PORT', 8080))
-STATS_PORT = int(os.getenv('STATS_PORT', False))
+STATS_PORT = os.getenv('STATS_PORT', None)
 RESPOND_BYTES = int(os.getenv('RESPOND_BYTES', 16384))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 START_TIME = int(time.time())
@@ -122,7 +122,7 @@ class stats_httpd(BaseHTTPRequestHandler):
             'stats': stats['Total'],
             'config': {
                 'LISTEN_PORT': LISTEN_PORT,
-                'STATS_PORT': STATS_PORT,
+                'STATS_PORT': int(STATS_PORT),
                 'RESPOND_BYTES': RESPOND_BYTES,
                 'STOP_SECONDS': STOP_SECONDS
             }
@@ -132,7 +132,7 @@ class stats_httpd(BaseHTTPRequestHandler):
 
 def statistics_server():
     if STATS_PORT:
-        stats_server = ThreadingHTTPServer((HOST_NAME, STATS_PORT), stats_httpd)
+        stats_server = ThreadingHTTPServer((HOST_NAME, int(STATS_PORT)), stats_httpd)
         stats_server.serve_forever()
 
 def main():
