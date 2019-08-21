@@ -12,6 +12,10 @@ This application generates traffic between simulated microservices using JSON ov
 
 Sample Kubernetes deployments can be found in the https://github.com/kellyjonbrazil/microsim/tree/master/k8s_deployments folder.
 
+![Simple Deployment](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/simple.png)
+
+## Usage
+
 All parameters are set via environment variables. Unset parameters will use the defaults:
 
 `microsimserver`
@@ -40,7 +44,6 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
 | `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
 | `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds                     |
-
 
 Example docker commands:
 ```
@@ -96,3 +99,72 @@ Sat Aug 17 15:42:29 2019   hostname: laptop.local   ip: 192.168.1.221   remote: 
 In this case, the first line is the `data` field sent from the `microsimserver`.
 
 The `microsimclient` similarly POST's a `data` field in the request body which is filled with randomly generated text. The number of characters is controled with the `REQUEST_BYTES` parameter.
+
+## Statistics
+
+If desired, a realtime statistics HTTP server can be enabled by specifying the `STATS_PORT` parameter for both the client and the server.  Example output:
+
+`microsimserver`:
+```
+$ curl localhost:5000
+{
+  "time": "Tue Aug 20 18:29:32 2019",
+  "runtime": 80,
+  "hostname": "laptop.local",
+  "ip": "10.3.192.150",
+  "stats": {
+    "Requests": 131,
+    "Sent Bytes": 13122535,
+    "Received Bytes": 132608,
+    "Attacks": 3,
+    "SQLi": 1,
+    "XSS": 1,
+    "Directory Traversal": 1
+  },
+  "config": {
+    "LISTEN_PORT": 8080,
+    "STATS_PORT": 5000,
+    "RESPOND_BYTES": 100000,
+    "STOP_SECONDS": 0
+  }
+}
+```
+
+`microsimclient`:
+```
+$ curl localhost:5001
+{
+  "time": "Tue Aug 20 18:29:44 2019",
+  "runtime": 90,
+  "hostname": "laptop.local",
+  "ip": "10.3.192.150",
+  "stats": {
+    "Requests": 149,
+    "Sent Bytes": 154364,
+    "Received Bytes": 14925479,
+    "Internet Requests": 0,
+    "Attacks": 3,
+    "SQLi": 1,
+    "XSS": 1,
+    "Directory Traversal": 1,
+    "DGA": 0,
+    "Malware": 0,
+    "Error": 0
+  },
+  "config": {
+    "STATS_PORT": 5001,
+    "REQUEST_URLS": "http://localhost:8080",
+    "REQUEST_INTERNET": false,
+    "REQUEST_MALWARE": false,
+    "SEND_SQLI": true,
+    "SEND_DIR_TRAVERSAL": true,
+    "SEND_XSS": true,
+    "SEND_DGA": false,
+    "REQUEST_WAIT_SECONDS": 0.5,
+    "REQUEST_BYTES": 1024,
+    "STOP_SECONDS": 0,
+    "ATTACK_PROBABILITY": 0.01,
+    "EGRESS_PROBABILITY": 0.1
+  }
+}
+```
