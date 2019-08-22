@@ -147,3 +147,6 @@ The following features are enabled in this deployment:
     - 1 Pod running a standard StatsD and Graphite engine
     - Listens on UDP 8125 for statsd updates from the client and servers
     - Service publicy exposed via LoadBalancer on port 80 for the Graphite UI
+
+> Note: this deployment may require more CPU than the minimal Cluster configuration in GKE
+
