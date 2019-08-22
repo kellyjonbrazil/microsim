@@ -23,7 +23,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | Parameter          | Values          | Default          | Description                                     |
 | ------------------ |-----------------| -----------------| ------------------------------------------------|
 | `LISTEN_PORT`      | `1` - `65535`   | `8080`           | Port the HTTP server listens on                 |
-| `STATS_PORT`       | `1` - `65535`   | None             | Enable the stats server running on the specified port |
+| `STATS_PORT`       | `1` - `65535`   | None             | Enable the HTTP stats server running on the specified port |
 | `RESPOND_BYTES`    | `1` - ?         | `16384`          | How many data bytes are added to the response   |
 | `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds           |
 
@@ -31,7 +31,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 
 | Parameter             | Values          | Default  | Description                                     |
 | --------------------- |-----------------| ---------| ------------------------------------------------|
-| `STATS_PORT`          | `1` - `65535`   | None     | Enable the stats server running on the specified port |
+| `STATS_PORT`          | `1` - `65535`   | None     | Enable the HTTP stats server running on the specified port |
 | `REQUEST_URLS`          | `"http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"` | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
 | `REQUEST_INTERNET`      | `True`/`False`      | `False`    | Send regular requests to the internet if True             |
 | `REQUEST_MALWARE`       | `True`/`False`      | `False`    | Occasionally download an eicar sample from the internet   |
@@ -39,7 +39,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `SEND_XSS`              | `True`/`False`      | `False`    | Occasionally send XSS to the REQUEST_URLS                 |
 | `SEND_DIR_TRAVERSAL`    | `True`/`False`      | `False`    | Occasionally send Directory Traversal to the REQUEST_URLS |
 | `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
-| `REQUEST_WAIT_SECONDS`  | `0.01` - ? (float)  | `3`        | Number of seconds to wait between request loop runs       |
+| `REQUEST_WAIT_SECONDS`  | `0` - ? (float)  | `3`        | Number of seconds to wait between request loop runs       |
 | `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
 | `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
 | `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
@@ -100,9 +100,9 @@ In this case, the first line is the `data` field sent from the `microsimserver`.
 
 The `microsimclient` similarly POST's a `data` field in the request body which is filled with randomly generated text. The number of characters is controled with the `REQUEST_BYTES` parameter.
 
-## Statistics
+## Local Statistics
 
-If desired, a realtime statistics HTTP server can be enabled by specifying the `STATS_PORT` parameter for both the client and the server.  Example output:
+If desired, a realtime statistics HTTP server can be enabled by specifying the `STATS_PORT` parameter for both the client and the server. The curl command is included in the Docker container so local and remote stats can also be pulled from within the container. Example output:
 
 `microsimserver`:
 ```
@@ -124,6 +124,8 @@ $ curl localhost:5000
   "config": {
     "LISTEN_PORT": 8080,
     "STATS_PORT": 5000,
+    "STATSD_HOST": "localhost",
+    "STATSD_PORT": 8215,
     "RESPOND_BYTES": 100000,
     "STOP_SECONDS": 0
   }
@@ -153,6 +155,8 @@ $ curl localhost:5001
   },
   "config": {
     "STATS_PORT": 5001,
+    "STATSD_HOST": "localhost",
+    "STATSD_PORT": 8215,
     "REQUEST_URLS": "http://localhost:8080",
     "REQUEST_INTERNET": false,
     "REQUEST_MALWARE": false,
@@ -168,3 +172,7 @@ $ curl localhost:5001
   }
 }
 ```
+
+## StatsD Statistics
+
+By configuring the `STATSD_HOST` an the optional `STATSD_PORT` (default port is UDP/8215) parameter the client and server will send regular request, response, attack, and error stats to the StatsD server for aggregation and graphing.
