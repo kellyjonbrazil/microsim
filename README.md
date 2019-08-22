@@ -54,6 +54,8 @@ Example docker commands:
 docker run -d --rm \
     -e LISTEN_PORT=8080 \
     -e STATS_PORT=5001 \
+    -e STATSD_HOST="172.17.0.2" \
+    -e STATSD_PORT=8100 \
     -e RESPOND_BYTES=1024 \
     -e STOP_SECONDS=300 \
     -p 8080:8080 \
@@ -63,6 +65,8 @@ docker run -d --rm \
 ```
 docker run -d --rm \
     -e STATS_PORT=5000 \
+    -e STATSD_HOST="172.17.0.2" \
+    -e STATSD_PORT=8100 \
     -e REQUEST_URLS="http://service1.default.svc.cluster.local:8080,http://service2.default.svc.cluster.local:5000" \
     -e REQUEST_INTERNET=True \
     -e REQUEST_MALWARE=True \
