@@ -3,6 +3,8 @@
 # run as:
 # docker run -d --rm \
 #    -e STATS_PORT=5001 \
+#    -e STATSD_HOST=localhost \
+#    -e STATSD_PORT=8125 \
 #    -e REQUEST_URLS="http://service1.default.svc.cluster.local:8080,http://service2.default.svc.cluster.local:5000" \
 #    -e REQUEST_INTERNET=True \
 #    -e REQUEST_MALWARE=True \
