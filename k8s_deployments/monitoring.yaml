@@ -104,8 +104,10 @@ spec:
           image: graphiteapp/graphite-statsd
           ports:
             - containerPort: 80
+              name: www
             - containerPort: 8125
               protocol: UDP
+              name: stats
 ---
 apiVersion: v1
 kind: Service
@@ -151,6 +153,7 @@ spec:
     - port: 8125
       targetPort: 8125
       name: stats
+      protocol: UDP
   selector:
     app: statsd
   sessionAffinity: None
