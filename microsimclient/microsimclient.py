@@ -9,6 +9,7 @@ import requests
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from statsd import StatsClient
 
 def str2bool(val):
     if val and val.lower() != 'false':
@@ -28,6 +29,8 @@ STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 STATS_PORT = os.getenv('STATS_PORT', None)
+STATSD_HOST = os.getenv('STATSD_HOST', None)
+STATSD_PORT = int(os.getenv('REQUEST_BYTES', 8125))
 START_TIME = int(time.time())
 HOST_NAME = ''
 
@@ -60,6 +63,15 @@ stats = {
     }
 }
 
+if STATSD_HOST:
+    client_stats = StatsClient(prefix='all_clients',
+                               host=STATSD_HOST,
+                               port=STATSD_PORT)
+
+    host_stats = StatsClient(prefix='client-' + socket.gethostname(),
+                             host=STATSD_HOST,
+                             port=STATSD_PORT)
+
 class httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
     server_ip = socket.gethostbyname(server_name)
@@ -78,6 +90,8 @@ class httpd(BaseHTTPRequestHandler):
             'stats': stats['Total'],
             'config': {
                 'STATS_PORT': int(STATS_PORT),
+                'STATSD_HOST': STATSD_HOST,
+                'STATSD_PORT': STATSD_PORT,
                 'REQUEST_URLS': REQUEST_URLS,
                 'REQUEST_INTERNET': REQUEST_INTERNET,
                 'REQUEST_MALWARE': REQUEST_MALWARE,
@@ -154,10 +168,23 @@ def main():
                 stats['Last 30 Seconds']['Sent Bytes'] += len(response.request.body)
                 stats['Total']['Received Bytes'] += len(response.content)
                 stats['Last 30 Seconds']['Received Bytes'] += len(response.content)
+
+                if STATSD_HOST:
+                    client_stats.incr('requests')
+                    client_stats.incr('sent_bytes', len(response.request.body))
+                    client_stats.incr('received_bytes', len(response.content))
+                    host_stats.incr('requests')
+                    host_stats.incr('sent_bytes', len(response.request.body))
+                    host_stats.incr('received_bytes', len(response.content))
+
             except Exception as e:
                 print(str(e) + ' error to: ' + url)
                 stats['Total']['Error'] += 1
                 stats['Last 30 Seconds']['Error'] += 1
+
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
 
             if SEND_SQLI:
                 if random.random() < ATTACK_PROBABILITY:
@@ -173,10 +200,21 @@ def main():
                         stats['Last 30 Seconds']['SQLi'] += 1
                         stats['Total']['Attacks'] += 1
                         stats['Last 30 Seconds']['Attacks'] += 1
+
+                        if STATSD_HOST:
+                            client_stats.incr('sqli')
+                            client_stats.incr('attacks')
+                            host_stats.incr('sqli')
+                            host_stats.incr('attacks')
+
                     except Exception as e:
                         print(str(e) + ' error to: ' + url)
                         stats['Total']['Error'] += 1
                         stats['Last 30 Seconds']['Error'] += 1
+
+                        if STATSD_HOST:
+                            client_stats.incr('error')
+                            host_stats.incr('error')
 
             if SEND_XSS:
                 if random.random() < ATTACK_PROBABILITY:
@@ -192,10 +230,21 @@ def main():
                         stats['Last 30 Seconds']['XSS'] += 1
                         stats['Total']['Attacks'] += 1
                         stats['Last 30 Seconds']['Attacks'] += 1
+
+                        if STATSD_HOST:
+                            client_stats.incr('xss')
+                            client_stats.incr('attacks')
+                            host_stats.incr('xss')
+                            host_stats.incr('attacks')
+
                     except Exception as e:
                         print(str(e) + ' error to: ' + url)
                         stats['Total']['Error'] += 1
                         stats['Last 30 Seconds']['Error'] += 1
+
+                        if STATSD_HOST:
+                            client_stats.incr('error')
+                            host_stats.incr('error')
 
             if SEND_DIR_TRAVERSAL:
                 if random.random() < ATTACK_PROBABILITY:
@@ -211,24 +260,63 @@ def main():
                         stats['Last 30 Seconds']['Directory Traversal'] += 1
                         stats['Total']['Attacks'] += 1
                         stats['Last 30 Seconds']['Attacks'] += 1
+
+                        if STATSD_HOST:
+                            client_stats.incr('directory_traversal')
+                            client_stats.incr('attacks')
+                            host_stats.incr('directory_traversal')
+                            host_stats.incr('attacks')
+
                     except Exception as e:
                         print(str(e) + ' error to: ' + url)
                         stats['Total']['Error'] += 1
                         stats['Last 30 Seconds']['Error'] += 1
 
+                        if STATSD_HOST:
+                            client_stats.incr('error')
+                            host_stats.incr('error')
+
         if REQUEST_INTERNET:
             if random.random() < EGRESS_PROBABILITY:
-                fortinet = requests.Session()
+                egress_sites = [
+                    'http://mirror.facebook.net/centos/',
+                    'http://mirror.rackspace.com/CentOS/',
+                    'http://mirrors.edge.kernel.org/centos/',
+                    'http://mirrors.oit.uci.edu/centos/',
+                    'http://www.gtlib.gatech.edu/pub/centos/',
+                    'http://mirror.grid.uchicago.edu/pub/linux/centos/',
+                    'http://mirror.cc.columbia.edu/pub/linux/centos/',
+                    'http://yum.tamu.edu/centos/',
+                    'http://mirror.cogentco.com/pub/linux/centos/',
+                    'http://mirror.cs.vt.edu/pub/CentOS/',
+                    'http://centos.s.uw.edu/centos/'
+                ]
+
+                egress_site = random.choice(egress_sites)
+                egress_internet = requests.Session()
                 
                 try:
-                    fortinet = fortinet.get('http://www.fortinet.com', allow_redirects=True)
-                    print('Internet request to: ' + fortinet.url)
+                    egress_internet = egress_internet.get(egress_site, allow_redirects=True)
+                    print('Internet request to: ' + egress_internet.url)
                     stats['Total']['Internet Requests'] += 1
                     stats['Last 30 Seconds']['Internet Requests'] += 1
+                    stats['Total']['Received Bytes'] += len(egress_internet.content)
+                    stats['Last 30 Seconds']['Received Bytes'] += len(egress_internet.content)
+
+                    if STATSD_HOST:
+                        client_stats.incr('internet_requests')
+                        client_stats.incr('received_bytes', len(egress_internet.content))
+                        host_stats.incr('internet_requests')
+                        host_stats.incr('received_bytes', len(egress_internet.content))
+
                 except Exception as e:
                     print(str(e) + ' error to: ' + url)
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
+
+                    if STATSD_HOST:
+                        client_stats.incr('error')
+                        host_stats.incr('error')
 
         if REQUEST_MALWARE:
             if random.random() < ATTACK_PROBABILITY:
@@ -241,10 +329,21 @@ def main():
                     stats['Last 30 Seconds']['Malware'] += 1
                     stats['Total']['Attacks'] += 1
                     stats['Last 30 Seconds']['Attacks'] += 1
+
+                    if STATSD_HOST:
+                        client_stats.incr('malware')
+                        client_stats.incr('attacks')
+                        host_stats.incr('malware')
+                        host_stats.incr('attacks')
+
                 except Exception as e:
                     print(str(e) + ' error to: ' + url)
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
+
+                    if STATSD_HOST:
+                        client_stats.incr('error')
+                        host_stats.incr('error')
 
         if SEND_DGA:
             if random.random() < ATTACK_PROBABILITY:
@@ -266,11 +365,21 @@ def main():
                     stats['Last 30 Seconds']['DGA'] += 1
                     stats['Total']['Attacks'] += 1
                     stats['Last 30 Seconds']['Attacks'] += 1
-                    time.sleep(REQUEST_WAIT_SECONDS)
+                    
+                    if STATSD_HOST:
+                        client_stats.incr('dga')
+                        client_stats.incr('attacks')
+                        host_stats.incr('dga')
+                        host_stats.incr('attacks')
+
                 except Exception as e:
                     print(str(e) + ' error resolving: ' + dga)
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
+
+                    if STATSD_HOST:
+                        client_stats.incr('error')
+                        host_stats.incr('error')
 
         time.sleep(REQUEST_WAIT_SECONDS)
 
