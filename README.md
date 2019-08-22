@@ -183,4 +183,27 @@ $ curl localhost:5001
 
 ## StatsD Statistics
 
-By configuring the `STATSD_HOST` an the optional `STATSD_PORT` (default UDP port is `8125`) parameter the client and server will send regular request, response, attack, and error stats to the StatsD server for aggregation and graphing.
+By configuring the `STATSD_HOST` and the optional `STATSD_PORT` (default UDP port is `8125`) parameter the client and server will send regular request, response, attack, and error stats to the StatsD server for aggregation and graphing.
+
+## Logging
+
+Both the client and server log output to stdout, which will show up in docker and kubernetes logs. The client logs will summarize the requests and errors and will also print a summary every 30 seconds of total stats and the stats for the last 30 seconds.
+
+```
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Directory Traversal sent: http://localhost:8080/?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd
+Internet request to: http://mirror.grid.uchicago.edu/pub/linux/centos/
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+{"Total": {"Requests": 545, "Sent Bytes": 564620, "Received Bytes": 55301055, "Internet Requests": 58, "Attacks": 5, "SQLi": 0, "XSS": 0, "Directory Traversal": 2, "DGA": 3, "Malware": 0, "Error": 0}, "Last 30 Seconds": {"Requests": 42, "Sent Bytes": 43512, "Received Bytes": 4269205, "Internet Requests": 6, "Attacks": 1, "SQLi": 0, "XSS": 0, "Directory Traversal": 0, "DGA": 1, "Malware": 0, "Error": 0}}
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+DGA query sent: xdcc5481252db5f38d5fc18c9ad3b2f7fd.cn   Response: 23.202.231.169
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Internet request to: http://mirrors.oit.uci.edu/centos/
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+```
