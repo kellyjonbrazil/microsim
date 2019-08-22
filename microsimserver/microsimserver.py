@@ -10,10 +10,13 @@ import json
 import threading
 import urllib.parse
 from socketserver import ThreadingMixIn
+from statsd import StatsClient
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 LISTEN_PORT = int(os.getenv('LISTEN_PORT', 8080))
 STATS_PORT = os.getenv('STATS_PORT', None)
+STATSD_HOST = os.getenv('STATSD_HOST', None)
+STATSD_PORT = int(os.getenv('REQUEST_BYTES', 8125))
 RESPOND_BYTES = int(os.getenv('RESPOND_BYTES', 16384))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 START_TIME = int(time.time())
@@ -30,6 +33,15 @@ stats = {
         'Directory Traversal': 0
     }
 }
+
+if STATSD_HOST:
+    server_stats = StatsClient(prefix='all_servers',
+                               host=STATSD_HOST,
+                               port=STATSD_PORT)
+
+    host_stats = StatsClient(prefix='server-' + socket.gethostname(),
+                             host=STATSD_HOST,
+                             port=STATSD_PORT)
 
 def keep_running():
     if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS) < int(time.time())):
@@ -59,18 +71,45 @@ class httpd(BaseHTTPRequestHandler):
 
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
+
+        if STATSD_HOST:
+            server_stats.incr('requests')
+            server_stats.incr('sent_bytes', len(body))
+            host_stats.incr('requests')
+            host_stats.incr('sent_bytes', len(body))
+            
         if re.search('UNION SELECT', urllib.parse.unquote_plus(self.path)):
             print('SQLi attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['SQLi'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('sqli')
+                host_stats.incr('attacks')
+                host_stats.incr('sqli')
+
         if re.search('<script>alert', urllib.parse.unquote(self.path)):
             print('XSS attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['XSS'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('xss')
+                host_stats.incr('attacks')
+                host_stats.incr('xss')
+
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
             print('Directory Traversal attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['Directory Traversal'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('directory_traversal')
+                host_stats.incr('attacks')
+                host_stats.incr('directory_traversal')
 
     def do_POST(self):
         """json api response"""
@@ -92,18 +131,47 @@ class httpd(BaseHTTPRequestHandler):
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
         stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
+
+        if STATSD_HOST:
+            server_stats.incr('requests')
+            server_stats.incr('sent_bytes', len(body))
+            server_stats.incr('received_bytes', int(self.headers['Content-Length']))
+            host_stats.incr('requests')
+            host_stats.incr('sent_bytes', len(body))
+            host_stats.incr('received_bytes', int(self.headers['Content-Length']))
+
         if re.search(';UNION SELECT 1, version() limit 1,1--', urllib.parse.unquote(self.path)):
             print('SQLi attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['SQLi'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('sqli')
+                host_stats.incr('attacks')
+                host_stats.incr('sqli')
+
         if re.search("pwd<script>alert('attacked')</script>", urllib.parse.unquote(self.path)):
             print('XSS attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['XSS'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('xss')
+                host_stats.incr('attacks')
+                host_stats.incr('xss')
+
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
             print('Directory Traversal attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['Directory Traversal'] += 1
+
+            if STATSD_HOST:
+                server_stats.incr('attacks')
+                server_stats.incr('directory_traversal')
+                host_stats.incr('attacks')
+                host_stats.incr('directory_traversal')
 
 class stats_httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
@@ -123,6 +191,8 @@ class stats_httpd(BaseHTTPRequestHandler):
             'config': {
                 'LISTEN_PORT': LISTEN_PORT,
                 'STATS_PORT': int(STATS_PORT),
+                'STATSD_HOST': STATSD_HOST,
+                'STATSD_PORT': STATSD_PORT,
                 'RESPOND_BYTES': RESPOND_BYTES,
                 'STOP_SECONDS': STOP_SECONDS
             }
