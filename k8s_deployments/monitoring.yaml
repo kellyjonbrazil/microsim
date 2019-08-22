@@ -13,30 +13,30 @@ spec:
         - name: microsimclient
           image: kellybrazil/microsimclient
           ports:
-          - containerPort: 5000
+            - containerPort: 5000
           env:
-          - name: REQUEST_URLS
-            value: "http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"
-          - name: REQUEST_INTERNET
-            value: "True"
-          - name: SEND_SQLI
-            value: "True"
-          - name: SEND_XSS
-            value: "True"
-          - name: SEND_DGA
-            value: "True"
-          - name: SEND_DIR_TRAVERSAL
-            value: "True"
-          - name: REQUEST_MALWARE
-            value: "True"
-          - name: REQUEST_WAIT_SECONDS
-            value: 0.5
-          - name: REQUEST_BYTES
-            value: 4096
-          - name: STATS_PORT
-            value: 5000
-          - name: STATSD_HOST
-            value: "statsd.default.svc.cluster.local"
+            - name: REQUEST_URLS
+              value: "http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"
+            - name: REQUEST_INTERNET
+              value: "True"
+            - name: SEND_SQLI
+              value: "True"
+            - name: SEND_XSS
+              value: "True"
+            - name: SEND_DGA
+              value: "True"
+            - name: SEND_DIR_TRAVERSAL
+              value: "True"
+            - name: REQUEST_MALWARE
+              value: "True"
+            - name: REQUEST_WAIT_SECONDS
+              value: 0.5
+            - name: REQUEST_BYTES
+              value: 4096
+            - name: STATS_PORT
+              value: 5000
+            - name: STATSD_HOST
+              value: "statsd.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -53,15 +53,15 @@ spec:
         - name: microsimserver
           image: kellybrazil/microsimserver
           ports:
-          - containerPort: 8080
-          - containerPort: 5000
+            - containerPort: 8080
+            - containerPort: 5000
           env:
-          - name: RESPOND_BYTES
-            value: 32768
-          - name: STATS_PORT
-            value: 5000
-          - name: STATSD_HOST
-            value: "statsd.default.svc.cluster.local"
+            - name: RESPOND_BYTES
+              value: 32768
+            - name: STATS_PORT
+              value: 5000
+            - name: STATSD_HOST
+              value: "statsd.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -78,15 +78,15 @@ spec:
         - name: microsimserver
           image: kellybrazil/microsimserver
           ports:
-          - containerPort: 8080
-          - containerPort: 5000
+            - containerPort: 8080
+            - containerPort: 5000
           env:
-          - name: RESPOND_BYTES
-            value: 32768
-          - name: STATS_PORT
-            value: 5000
-          - name: STATSD_HOST
-            value: "statsd.default.svc.cluster.local"
+            - name: RESPOND_BYTES
+              value: 32768
+            - name: STATS_PORT
+              value: 5000
+            - name: STATSD_HOST
+              value: "statsd.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -103,9 +103,9 @@ spec:
         - name: statsd
           image: graphiteapp/graphite-statsd
           ports:
-          - containerPort: 80
-          - containerPort: 8125
-            protocol: UDP
+            - containerPort: 80
+            - containerPort: 8125
+              protocol: UDP
 ---
 apiVersion: v1
 kind: Service
@@ -116,8 +116,8 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   ports:
-  - port: 80
-    targetPort: 5000
+    - port: 80
+      targetPort: 5000
   selector:
     app: www
   sessionAffinity: None
@@ -132,8 +132,8 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   ports:
-  - port: 8080
-    targetPort: 80
+    - port: 8080
+      targetPort: 80
   selector:
     app: statsd
   sessionAffinity: None
@@ -147,10 +147,10 @@ metadata:
   name: auth
 spec:
   ports:
-  - port: 8080
-    targetPort: 8080
-  - port: 5000
-    targetPort: 5000
+    - port: 8080
+      targetPort: 8080
+    - port: 5000
+      targetPort: 5000
   selector:
     app: auth
   sessionAffinity: None
@@ -163,10 +163,10 @@ metadata:
   name: db
 spec:
   ports:
-  - port: 8080
-    targetPort: 8080
-  - port: 5000
-    targetPort: 5000
+    - port: 8080
+      targetPort: 8080
+    - port: 5000
+      targetPort: 5000
   selector:
     app: db
   sessionAffinity: None
