@@ -1,8 +1,20 @@
 microsimclient changelog
 
+20190821 v0.3
+- Change REQUEST_WAIT_SECONDS to float
+- Fix parameter boolean logic
+- Add stats http server
+- Add statsd client
+- Add stats to log
+- Change ATTACK_PROBABILITY to 0.01
+- Change DGA to random choice of one request
+- Change egress internet to random choice
+- Add curl to container
+
+
 20190818 v0.2
-- add ATTACK_PROBABILITY parameter
-- add EGRESS_PROBABILITY parameter
+- Add ATTACK_PROBABILITY parameter
+- Add EGRESS_PROBABILITY parameter
 
 20190817 v0.1
 - Initial release
