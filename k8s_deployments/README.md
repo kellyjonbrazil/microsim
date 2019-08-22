@@ -23,11 +23,11 @@ The following features are enabled in this deployment:
 - WWW Service
     - 3 Pods running the Server and Client
     - Service is publicly exposed via LoadBalancer on port 80
-    - Client makes HTTP requests to the `auth` and `db` services on port 8080 every 3 seconds
+    - Each client makes HTTP requests to the `auth` and `db` services on port 8080 every 3 seconds
         - request size is 1KB
         - response size is 16KB
-    - Client makes HTTP requests out to the internet on port 80 every 3 seconds
-    - Client sends a SQLi attack to the `auth` and `db` services approximately every 1000 requests
+    - Each client makes HTTP requests out to the internet on port 80 approximately every 10 requests
+    - Each client sends a SQLi attack to the `auth` and `db` services approximately every 100 requests
 - Auth Service
     - 3 Pods running the Server
     - Internal service only running on port 8080
