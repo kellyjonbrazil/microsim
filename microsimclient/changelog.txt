@@ -11,7 +11,6 @@ microsimclient changelog
 - Change egress internet to random choice
 - Add curl to container
 
-
 20190818 v0.2
 - Add ATTACK_PROBABILITY parameter
 - Add EGRESS_PROBABILITY parameter

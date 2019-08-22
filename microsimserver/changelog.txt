@@ -3,7 +3,6 @@ microsimserver changelog
 20190821 v0.3
 - Add stats http server
 - Add statsd client
-- Add stats to log
 - Add curl to container
 
 20190817 v0.1
