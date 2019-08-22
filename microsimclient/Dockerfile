@@ -15,13 +15,15 @@
 #    -e STOP_SECONDS=300 \
 #    -e ATTACK_PROBABILITY=0.01 \
 #    -e EGRESS_PROBABILITY=0.1 \
-#    -e 5001:5001
+#    -p 5001:5001
 #    kellybrazil/microsimclient
 
 FROM python:3.7-alpine
 
 RUN mkdir /app
 RUN pip install requests
+RUN pip install statsd
+RUN apk --no-cache add curl
 
 COPY microsimclient.py /app
 
