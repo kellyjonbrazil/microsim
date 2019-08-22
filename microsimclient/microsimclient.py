@@ -30,7 +30,7 @@ ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 STATS_PORT = os.getenv('STATS_PORT', None)
 STATSD_HOST = os.getenv('STATSD_HOST', None)
-STATSD_PORT = int(os.getenv('REQUEST_BYTES', 8125))
+STATSD_PORT = int(os.getenv('STATSD_PORT', 8125))
 START_TIME = int(time.time())
 HOST_NAME = ''
 
