@@ -36,7 +36,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `STATS_PORT`          | `1` - `65535`   | None     | Enable the HTTP stats server running on the specified port |
 | `STATSD_HOST`         | `"1.2.3.4"`     | None             | Enable sending StatsD stats to the specified host |
 | `STATSD_PORT`         | `1` - `65535`   | `8125`           | Modify the default StatsD destination port, if desired |
-| `REQUEST_URLS`          | `"http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"` | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
+| `REQUEST_URLS`          | `"http://auth:8080,http://db:8080"` | None      | One or more comma separated URLs to send requests to. *Note: this is a required parameter* |
 | `REQUEST_INTERNET`      | `True`/`False`      | `False`    | Send regular requests to the internet if True             |
 | `REQUEST_MALWARE`       | `True`/`False`      | `False`    | Occasionally download an eicar sample from the internet   |
 | `SEND_SQLI`             | `True`/`False`      | `False`    | Occasionally send SQLi to the REQUEST_URLS                |
@@ -133,7 +133,7 @@ $ curl localhost:5000
     "LISTEN_PORT": 8080,
     "STATS_PORT": 5000,
     "STATSD_HOST": "localhost",
-    "STATSD_PORT": 8215,
+    "STATSD_PORT": 8125,
     "RESPOND_BYTES": 100000,
     "STOP_SECONDS": 0
   }
@@ -164,7 +164,7 @@ $ curl localhost:5001
   "config": {
     "STATS_PORT": 5001,
     "STATSD_HOST": "localhost",
-    "STATSD_PORT": 8215,
+    "STATSD_PORT": 8125,
     "REQUEST_URLS": "http://localhost:8080",
     "REQUEST_INTERNET": false,
     "REQUEST_MALWARE": false,
@@ -183,4 +183,4 @@ $ curl localhost:5001
 
 ## StatsD Statistics
 
-By configuring the `STATSD_HOST` an the optional `STATSD_PORT` (default port is UDP/8215) parameter the client and server will send regular request, response, attack, and error stats to the StatsD server for aggregation and graphing.
+By configuring the `STATSD_HOST` an the optional `STATSD_PORT` (default UDP port is `8125`) parameter the client and server will send regular request, response, attack, and error stats to the StatsD server for aggregation and graphing.

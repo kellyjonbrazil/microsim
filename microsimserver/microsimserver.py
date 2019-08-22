@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 LISTEN_PORT = int(os.getenv('LISTEN_PORT', 8080))
 STATS_PORT = os.getenv('STATS_PORT', None)
 STATSD_HOST = os.getenv('STATSD_HOST', None)
-STATSD_PORT = int(os.getenv('REQUEST_BYTES', 8125))
+STATSD_PORT = int(os.getenv('STATSD_PORT', 8125))
 RESPOND_BYTES = int(os.getenv('RESPOND_BYTES', 16384))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 START_TIME = int(time.time())

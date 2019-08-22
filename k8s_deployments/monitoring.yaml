@@ -30,11 +30,11 @@ spec:
             - name: REQUEST_MALWARE
               value: "True"
             - name: REQUEST_WAIT_SECONDS
-              value: 0.5
+              value: "0.5"
             - name: REQUEST_BYTES
-              value: 4096
+              value: "4096"
             - name: STATS_PORT
-              value: 5000
+              value: "5000"
             - name: STATSD_HOST
               value: "statsd.default.svc.cluster.local"
 ---
@@ -57,9 +57,9 @@ spec:
             - containerPort: 5000
           env:
             - name: RESPOND_BYTES
-              value: 32768
+              value: "32768"
             - name: STATS_PORT
-              value: 5000
+              value: "5000"
             - name: STATSD_HOST
               value: "statsd.default.svc.cluster.local"
 ---
@@ -82,9 +82,9 @@ spec:
             - containerPort: 5000
           env:
             - name: RESPOND_BYTES
-              value: 32768
+              value: "32768"
             - name: STATS_PORT
-              value: 5000
+              value: "5000"
             - name: STATSD_HOST
               value: "statsd.default.svc.cluster.local"
 ---
@@ -134,6 +134,7 @@ spec:
   ports:
     - port: 8080
       targetPort: 80
+      name: stats
   selector:
     app: statsd
   sessionAffinity: None
@@ -149,8 +150,10 @@ spec:
   ports:
     - port: 8080
       targetPort: 8080
+      name: auth
     - port: 5000
       targetPort: 5000
+      name: stats
   selector:
     app: auth
   sessionAffinity: None
@@ -165,8 +168,10 @@ spec:
   ports:
     - port: 8080
       targetPort: 8080
+      name: db
     - port: 5000
       targetPort: 5000
+      name: stats
   selector:
     app: db
   sessionAffinity: None
