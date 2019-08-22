@@ -36,14 +36,14 @@ spec:
             - name: STATS_PORT
               value: "5000"
             - name: STATSD_HOST
-              value: "statsd.default.svc.cluster.local"
+              value: "statsd-stats.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: auth
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -61,14 +61,14 @@ spec:
             - name: STATS_PORT
               value: "5000"
             - name: STATSD_HOST
-              value: "statsd.default.svc.cluster.local"
+              value: "statsd-stats.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: db
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -86,14 +86,14 @@ spec:
             - name: STATS_PORT
               value: "5000"
             - name: STATSD_HOST
-              value: "statsd.default.svc.cluster.local"
+              value: "statsd-stats.default.svc.cluster.local"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: statsd
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -127,18 +127,33 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: statsd
-  name: statsd
+    app: statsd-www
+  name: statsd-www
 spec:
   externalTrafficPolicy: Local
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 80
-      name: stats
+      name: statsd-www
   selector:
     app: statsd
   sessionAffinity: None
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: statsd-stats
+  name: statsd-stats
+spec:
+  ports:
+    - port: 8125
+      targetPort: 8125
+      name: stats
+  selector:
+    app: statsd
+  sessionAffinity: None
 ---
 apiVersion: v1
 kind: Service
