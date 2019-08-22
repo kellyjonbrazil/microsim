@@ -41,4 +41,4 @@ The following features are enabled in this deployment:
 
 This deployment is a bit more complex and uses multiple internal and external services to enable monitoring of the traffic and attacks from a standard graphite engine using StatsD.
 
-![Simple Deployment](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/simple.png)
+![Monitoring Deployment](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/monitoring.png)
