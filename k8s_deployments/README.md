@@ -129,7 +129,7 @@ You can also see individual or aggregate stats for the client and servers via th
 The following features are enabled in this deployment:
 
 - WWW Service
-    - 1 Pods running the Client with the realtime stats http server enabled on port 5000
+    - 1 Pod running the Client with the realtime stats http server enabled on port 5000
     - Service is publicly exposed via LoadBalancer on port 80
     - Client makes HTTP requests to the `auth` and `db` services on port 8080 every .5 seconds
         - request size is 4KB
@@ -144,6 +144,6 @@ The following features are enabled in this deployment:
     - Internal service only running on port 8080
     - Response size is 32KB
 - StatsD Stats Service
-    - 1 Pods running a standard StatsD and Graphite engine
+    - 1 Pod running a standard StatsD and Graphite engine
     - Listens on UDP 8125 for statsd updates from the client and servers
     - Service publicy exposed via LoadBalancer on port 80 for the Graphite UI
