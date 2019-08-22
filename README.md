@@ -189,6 +189,7 @@ By configuring the `STATSD_HOST` and the optional `STATSD_PORT` (default UDP por
 
 Both the client and server log output to stdout, which will show up in docker and kubernetes logs. The client logs will summarize the requests and errors and will also print a summary every 30 seconds of total stats and the stats for the last 30 seconds.
 
+`microsimclient`:
 ```
 Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 Directory Traversal sent: http://localhost:8080/?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd
@@ -206,4 +207,15 @@ Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 Internet request to: http://mirrors.oit.uci.edu/centos/
 Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+```
+
+`microsimserver`:
+```
+127.0.0.1 - - [21/Aug/2019 17:30:17] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [21/Aug/2019 17:30:18] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [21/Aug/2019 17:30:18] "GET /?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd HTTP/1.1" 200 -
+Directory Traversal attack detected
+127.0.0.1 - - [21/Aug/2019 17:30:19] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [21/Aug/2019 17:30:19] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [21/Aug/2019 17:30:20] "POST / HTTP/1.1" 200 -
 ```
