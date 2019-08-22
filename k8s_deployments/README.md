@@ -38,7 +38,7 @@ The following features are enabled in this deployment:
 
 ## Monitoring Deployment
 
-This deployment is a bit more complex and uses multiple internal and external services to enable monitoring of the traffic and attacks from a standard graphite engine using StatsD.
+This deployment is a bit more complex and uses multiple internal and external services to enable monitoring of the traffic and attacks from a standard Graphite engine using StatsD.
 
 ![Monitoring Deployment](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/monitoring.png)
 
@@ -144,5 +144,6 @@ The following features are enabled in this deployment:
     - Internal service only running on port 8080
     - Response size is 32KB
 - StatsD Stats Service
+    - 1 Pods running a standard StatsD and Graphite engine
     - Listens on UDP 8125 for statsd updates from the client and servers
     - Service publicy exposed via LoadBalancer on port 80 for the Graphite UI
