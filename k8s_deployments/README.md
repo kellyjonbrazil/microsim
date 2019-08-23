@@ -124,6 +124,17 @@ user@cloudshell:~ (project-250223)$ kubectl exec -it db-6c7c5f9d6d-kt8bz sh
 
 You can also see individual or aggregate stats for the client and servers via the Graphite StatsD pod by browsing to its public IP:
 
+```
+user@cloudshell:~ (project-250223)$ kubectl get services
+NAME           TYPE           CLUSTER-IP    EXTERNAL-IP      PORT(S)             AGE
+auth           ClusterIP      10.0.3.211    <none>           8080/TCP,5000/TCP   108s
+db             ClusterIP      10.0.10.223   <none>           8080/TCP,5000/TCP   108s
+kubernetes     ClusterIP      10.0.0.1      <none>           443/TCP             3m12s
+statsd-stats   ClusterIP      10.0.13.117   <none>           8125/UDP            108s
+statsd-www     LoadBalancer   10.0.0.146    35.233.247.165   80:30211/TCP        108s  <-- use this external ip
+www            LoadBalancer   10.0.0.192    35.233.200.142   80:31238/TCP        109s
+```
+
 ![StatsD UI](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/graphite.png)
 
 The following features are enabled in this deployment:
