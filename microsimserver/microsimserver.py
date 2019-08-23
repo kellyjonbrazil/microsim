@@ -28,6 +28,10 @@ STOP_PADDING = str2bool(os.getenv('STOP_PADDING', False))
 START_TIME = int(time.time())
 HOST_NAME = ''
 
+padding = 0
+if STOP_PADDING:
+    padding = random.choice(range(STOP_SECONDS))
+
 stats = {
     'Total': {
         'Requests': 0,
@@ -50,12 +54,9 @@ if STATSD_HOST:
                              port=STATSD_PORT)
 
 def keep_running():
-    if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS) < int(time.time())):
-        if STOP_PADDING:
-            sleep(random.choice(range(STOP_SECONDS)))
-
-        sys.exit('Server killed after ' + str(STOP_SECONDS) + ' seconds.')
-    
+    if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS + padding) < int(time.time())):
+        sys.exit('Server killed after ' + str(int(STOP_SECONDS) + int(padding)) + ' seconds.')
+        
     return True
 
 def insert_data():

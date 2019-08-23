@@ -26,6 +26,7 @@ SEND_DGA = str2bool(os.getenv('SEND_DGA', False))
 REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 3.0))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
+STOP_PADDING = str2bool(os.getenv('STOP_PADDING', False))
 ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 STATS_PORT = os.getenv('STATS_PORT', None)
@@ -33,6 +34,10 @@ STATSD_HOST = os.getenv('STATSD_HOST', None)
 STATSD_PORT = int(os.getenv('STATSD_PORT', 8125))
 START_TIME = int(time.time())
 HOST_NAME = ''
+
+padding = 0
+if STOP_PADDING:
+    padding = random.choice(range(STOP_SECONDS))
 
 stats = {
     'Total': {
@@ -123,8 +128,9 @@ def keep_running():
     if not REQUEST_URLS:
         sys.exit('Server killed - REQUEST_URLS environment variable required.')
 
-    if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS) < int(time.time())):
-        sys.exit('Server killed after ' + str(STOP_SECONDS) + ' seconds.')
+    if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS + padding) < int(time.time())):
+        sys.exit('Server killed after ' + str(int(STOP_SECONDS) + int(padding)) + ' seconds.')
+
     return True
 
 def insert_data():
