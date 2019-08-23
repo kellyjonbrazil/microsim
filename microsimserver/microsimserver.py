@@ -13,12 +13,18 @@ from socketserver import ThreadingMixIn
 from statsd import StatsClient
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+def str2bool(val):
+    if val and val.lower() != 'false':
+        return bool(val)
+    return False
+
 LISTEN_PORT = int(os.getenv('LISTEN_PORT', 8080))
 STATS_PORT = os.getenv('STATS_PORT', None)
 STATSD_HOST = os.getenv('STATSD_HOST', None)
 STATSD_PORT = int(os.getenv('STATSD_PORT', 8125))
 RESPOND_BYTES = int(os.getenv('RESPOND_BYTES', 16384))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
+STOP_PADDING = str2bool(os.getenv('STOP_PADDING', False))
 START_TIME = int(time.time())
 HOST_NAME = ''
 
@@ -45,7 +51,11 @@ if STATSD_HOST:
 
 def keep_running():
     if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS) < int(time.time())):
+        if STOP_PADDING:
+            sleep(random.choice(range(STOP_SECONDS)))
+
         sys.exit('Server killed after ' + str(STOP_SECONDS) + ' seconds.')
+    
     return True
 
 def insert_data():
