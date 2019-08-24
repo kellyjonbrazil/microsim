@@ -38,7 +38,7 @@ HOST_NAME = ''
 url_list = REQUEST_URLS.split(',')
 
 padding = 0
-if STOP_PADDING:
+if STOP_SECONDS and STOP_PADDING:
     padding = random.choice(range(STOP_SECONDS))
 
 egress_sites = [
