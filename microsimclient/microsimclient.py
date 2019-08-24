@@ -35,9 +35,34 @@ STATSD_PORT = int(os.getenv('STATSD_PORT', 8125))
 START_TIME = int(time.time())
 HOST_NAME = ''
 
+url_list = REQUEST_URLS.split(',')
+
 padding = 0
 if STOP_PADDING:
     padding = random.choice(range(STOP_SECONDS))
+
+egress_sites = [
+    'http://mirror.facebook.net/centos/',
+    'http://mirror.rackspace.com/CentOS/',
+    'http://mirrors.edge.kernel.org/centos/',
+    'http://mirrors.oit.uci.edu/centos/',
+    'http://www.gtlib.gatech.edu/pub/centos/',
+    'http://mirror.grid.uchicago.edu/pub/linux/centos/',
+    'http://mirror.cc.columbia.edu/pub/linux/centos/',
+    'http://yum.tamu.edu/centos/',
+    'http://mirror.cogentco.com/pub/linux/centos/',
+    'http://mirror.cs.vt.edu/pub/CentOS/',
+    'http://centos.s.uw.edu/centos/'
+]
+
+dga_domains = [
+    't3622c4773260c097e2e9b26705212ab85.ws',
+    'u83ccf36d9f02e9ea79a9d16c0336677e4.to',
+    'v02bec0c090508bc76b3ea81dfc2198a71.in',
+    'wa9e4628c334324e181e40f33f878c153f.hk',
+    'xdcc5481252db5f38d5fc18c9ad3b2f7fd.cn',
+    'yf32d9ac7f0a9f463e8da4736b12d7044a.tk'
+]
 
 stats = {
     'Total': {
@@ -143,6 +168,7 @@ def statistics_server():
 
 def main():
     while keep_running():
+
         if every_30_seconds():
             # Print and clear statistics
             print(json.dumps(stats))
@@ -160,11 +186,9 @@ def main():
                 'Error': 0
             }
 
-        url_list = REQUEST_URLS.split(',')
-
         json_body = {'data': insert_data()}
 
-        for url in url_list:
+        def internal_request(url):
             try:
                 response = requests.post(url, json=json_body)
                 print('Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
@@ -192,201 +216,217 @@ def main():
                     client_stats.incr('error')
                     host_stats.incr('error')
 
-            if SEND_SQLI:
-                if random.random() < ATTACK_PROBABILITY:
-                    parameters = {
-                        'username': 'joe@example.com',
-                        'password': ';UNION SELECT 1, version() limit 1,1--'
-                    }
+        # Put each internal request in its own thread
+        for url in url_list:
+            request_thread = threading.Thread(target=internal_request, args=(url,), daemon=True)
+            request_thread.start()
+            time.sleep(0.005)
 
-                    try:
-                        sqli = requests.get(url, params=parameters)
-                        print('SQLi sent: ' + sqli.url)
-                        stats['Total']['SQLi'] += 1
-                        stats['Last 30 Seconds']['SQLi'] += 1
-                        stats['Total']['Attacks'] += 1
-                        stats['Last 30 Seconds']['Attacks'] += 1
+        def sqli_attack(sqli_victim):
+            parameters = {
+                'username': 'joe@example.com',
+                'password': ';UNION SELECT 1, version() limit 1,1--'
+            }
 
-                        if STATSD_HOST:
-                            client_stats.incr('sqli')
-                            client_stats.incr('attacks')
-                            host_stats.incr('sqli')
-                            host_stats.incr('attacks')
+            try:
+                sqli = requests.get(sqli_victim, params=parameters)
+                print('SQLi sent: ' + sqli.url)
+                stats['Total']['SQLi'] += 1
+                stats['Last 30 Seconds']['SQLi'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
 
-                    except Exception as e:
-                        print(str(e) + ' error to: ' + url)
-                        stats['Total']['Error'] += 1
-                        stats['Last 30 Seconds']['Error'] += 1
+                if STATSD_HOST:
+                    client_stats.incr('sqli')
+                    client_stats.incr('attacks')
+                    host_stats.incr('sqli')
+                    host_stats.incr('attacks')
 
-                        if STATSD_HOST:
-                            client_stats.incr('error')
-                            host_stats.incr('error')
+            except Exception as e:
+                print(str(e) + ' error to: ' + sqli_victim)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
-            if SEND_XSS:
-                if random.random() < ATTACK_PROBABILITY:
-                    parameters = {
-                        'username': 'joe@example.com',
-                        'password': "pwd<script>alert('attacked')</script>"
-                    }
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
 
-                    try:
-                        xss = requests.get(url, params=parameters)
-                        print('XSS sent: ' + xss.url)
-                        stats['Total']['XSS'] += 1
-                        stats['Last 30 Seconds']['XSS'] += 1
-                        stats['Total']['Attacks'] += 1
-                        stats['Last 30 Seconds']['Attacks'] += 1
+        # Put each SQLi attack in its own thread
+        if SEND_SQLI:
+            if random.random() < ATTACK_PROBABILITY:
+                sqli_victim = random.choice(url_list)
+                sqli_thread = threading.Thread(target=sqli_attack, args=(sqli_victim,), daemon=True)
+                sqli_thread.start()
 
-                        if STATSD_HOST:
-                            client_stats.incr('xss')
-                            client_stats.incr('attacks')
-                            host_stats.incr('xss')
-                            host_stats.incr('attacks')
+        def xss_attack(xss_victim):
+            parameters = {
+                'username': 'joe@example.com',
+                'password': "pwd<script>alert('attacked')</script>"
+            }
 
-                    except Exception as e:
-                        print(str(e) + ' error to: ' + url)
-                        stats['Total']['Error'] += 1
-                        stats['Last 30 Seconds']['Error'] += 1
+            try:
+                xss = requests.get(xss_victim, params=parameters)
+                print('XSS sent: ' + xss.url)
+                stats['Total']['XSS'] += 1
+                stats['Last 30 Seconds']['XSS'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
 
-                        if STATSD_HOST:
-                            client_stats.incr('error')
-                            host_stats.incr('error')
+                if STATSD_HOST:
+                    client_stats.incr('xss')
+                    client_stats.incr('attacks')
+                    host_stats.incr('xss')
+                    host_stats.incr('attacks')
 
-            if SEND_DIR_TRAVERSAL:
-                if random.random() < ATTACK_PROBABILITY:
-                    parameters = {
-                        'username': 'joe@example.com',
-                        'password': '../../../../../passwd'
-                    }
+            except Exception as e:
+                print(str(e) + ' error to: ' + xss_victim)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
-                    try:
-                        dirtraversal = requests.get(url, params=parameters)
-                        print('Directory Traversal sent: ' + dirtraversal.url)
-                        stats['Total']['Directory Traversal'] += 1
-                        stats['Last 30 Seconds']['Directory Traversal'] += 1
-                        stats['Total']['Attacks'] += 1
-                        stats['Last 30 Seconds']['Attacks'] += 1
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
 
-                        if STATSD_HOST:
-                            client_stats.incr('directory_traversal')
-                            client_stats.incr('attacks')
-                            host_stats.incr('directory_traversal')
-                            host_stats.incr('attacks')
+        # Put each XSS attack in its own thread
+        if SEND_XSS:
+            if random.random() < ATTACK_PROBABILITY:
+                xss_victim = random.choice(url_list)
+                xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
+                xss_thread.start()
 
-                    except Exception as e:
-                        print(str(e) + ' error to: ' + url)
-                        stats['Total']['Error'] += 1
-                        stats['Last 30 Seconds']['Error'] += 1
+        def dt_attack(dt_victim):
+            parameters = {
+                'username': 'joe@example.com',
+                'password': '../../../../../passwd'
+            }
 
-                        if STATSD_HOST:
-                            client_stats.incr('error')
-                            host_stats.incr('error')
+            try:
+                dirtraversal = requests.get(dt_victim, params=parameters)
+                print('Directory Traversal sent: ' + dirtraversal.url)
+                stats['Total']['Directory Traversal'] += 1
+                stats['Last 30 Seconds']['Directory Traversal'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
 
+                if STATSD_HOST:
+                    client_stats.incr('directory_traversal')
+                    client_stats.incr('attacks')
+                    host_stats.incr('directory_traversal')
+                    host_stats.incr('attacks')
+
+            except Exception as e:
+                print(str(e) + ' error to: ' + dt_victim)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
+
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
+        
+        # Put each Directory Traversal attack in its own thread
+        if SEND_DIR_TRAVERSAL:
+            if random.random() < ATTACK_PROBABILITY:
+                dt_victim = random.choice(url_list)
+                dt_thread = threading.Thread(target=dt_attack, args=(dt_victim,), daemon=True)
+                dt_thread.start()
+
+        def egress_request(egress_site):
+            egress_internet = requests.Session()
+                
+            try:
+                egress_internet = egress_internet.get(egress_site, allow_redirects=True)
+                print('Internet request to: ' + egress_internet.url)
+                stats['Total']['Internet Requests'] += 1
+                stats['Last 30 Seconds']['Internet Requests'] += 1
+                stats['Total']['Received Bytes'] += len(egress_internet.content)
+                stats['Last 30 Seconds']['Received Bytes'] += len(egress_internet.content)
+
+                if STATSD_HOST:
+                    client_stats.incr('internet_requests')
+                    client_stats.incr('received_bytes', len(egress_internet.content))
+                    host_stats.incr('internet_requests')
+                    host_stats.incr('received_bytes', len(egress_internet.content))
+
+            except Exception as e:
+                print(str(e) + ' error to: ' + egress_site)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
+
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
+
+        # Put each external internet request in its own thread
         if REQUEST_INTERNET:
             if random.random() < EGRESS_PROBABILITY:
-                egress_sites = [
-                    'http://mirror.facebook.net/centos/',
-                    'http://mirror.rackspace.com/CentOS/',
-                    'http://mirrors.edge.kernel.org/centos/',
-                    'http://mirrors.oit.uci.edu/centos/',
-                    'http://www.gtlib.gatech.edu/pub/centos/',
-                    'http://mirror.grid.uchicago.edu/pub/linux/centos/',
-                    'http://mirror.cc.columbia.edu/pub/linux/centos/',
-                    'http://yum.tamu.edu/centos/',
-                    'http://mirror.cogentco.com/pub/linux/centos/',
-                    'http://mirror.cs.vt.edu/pub/CentOS/',
-                    'http://centos.s.uw.edu/centos/'
-                ]
-
                 egress_site = random.choice(egress_sites)
-                egress_internet = requests.Session()
+                egress_thread = threading.Thread(target=egress_request, args=(egress_site,), daemon=True)
+                egress_thread.start()
                 
-                try:
-                    egress_internet = egress_internet.get(egress_site, allow_redirects=True)
-                    print('Internet request to: ' + egress_internet.url)
-                    stats['Total']['Internet Requests'] += 1
-                    stats['Last 30 Seconds']['Internet Requests'] += 1
-                    stats['Total']['Received Bytes'] += len(egress_internet.content)
-                    stats['Last 30 Seconds']['Received Bytes'] += len(egress_internet.content)
+        def malware_request():
+            eicar = requests.Session()
+            eicar_url = 'http://www.eicar.org/download/eicar.com.txt'
 
-                    if STATSD_HOST:
-                        client_stats.incr('internet_requests')
-                        client_stats.incr('received_bytes', len(egress_internet.content))
-                        host_stats.incr('internet_requests')
-                        host_stats.incr('received_bytes', len(egress_internet.content))
+            try:
+                eicar = eicar.get(eicar_url)
+                print('Malware downloaded: ' + eicar.text)
+                stats['Total']['Malware'] += 1
+                stats['Last 30 Seconds']['Malware'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
 
-                except Exception as e:
-                    print(str(e) + ' error to: ' + url)
-                    stats['Total']['Error'] += 1
-                    stats['Last 30 Seconds']['Error'] += 1
+                if STATSD_HOST:
+                    client_stats.incr('malware')
+                    client_stats.incr('attacks')
+                    host_stats.incr('malware')
+                    host_stats.incr('attacks')
 
-                    if STATSD_HOST:
-                        client_stats.incr('error')
-                        host_stats.incr('error')
+            except Exception as e:
+                print(str(e) + ' error to: ' + eicar_url)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
+
+        # Put each malware request in its own thread
         if REQUEST_MALWARE:
             if random.random() < ATTACK_PROBABILITY:
-                eicar = requests.Session()
+                malware_thread = threading.Thread(target=malware_request, daemon=True)
+                malware_thread.start()
+
+        def dga_attack(dga):
+            try:
+                dga_response = socket.gethostbyname(dga)
+                print('DGA query sent: ' + dga + '   Response: ' + dga_response)
+                stats['Total']['DGA'] += 1
+                stats['Last 30 Seconds']['DGA'] += 1
+                stats['Total']['Attacks'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
                 
-                try:
-                    eicar = eicar.get('http://www.eicar.org/download/eicar.com.txt')
-                    print('Malware downloaded: ' + eicar.text)
-                    stats['Total']['Malware'] += 1
-                    stats['Last 30 Seconds']['Malware'] += 1
-                    stats['Total']['Attacks'] += 1
-                    stats['Last 30 Seconds']['Attacks'] += 1
+                if STATSD_HOST:
+                    client_stats.incr('dga')
+                    client_stats.incr('attacks')
+                    host_stats.incr('dga')
+                    host_stats.incr('attacks')
 
-                    if STATSD_HOST:
-                        client_stats.incr('malware')
-                        client_stats.incr('attacks')
-                        host_stats.incr('malware')
-                        host_stats.incr('attacks')
+            except Exception as e:
+                print(str(e) + ' error resolving: ' + dga)
+                stats['Total']['Error'] += 1
+                stats['Last 30 Seconds']['Error'] += 1
 
-                except Exception as e:
-                    print(str(e) + ' error to: ' + url)
-                    stats['Total']['Error'] += 1
-                    stats['Last 30 Seconds']['Error'] += 1
+                if STATSD_HOST:
+                    client_stats.incr('error')
+                    host_stats.incr('error')
 
-                    if STATSD_HOST:
-                        client_stats.incr('error')
-                        host_stats.incr('error')
-
+        # Put each DGA query in its own thread
         if SEND_DGA:
             if random.random() < ATTACK_PROBABILITY:
-                dga_domains = [
-                    't3622c4773260c097e2e9b26705212ab85.ws',
-                    'u83ccf36d9f02e9ea79a9d16c0336677e4.to',
-                    'v02bec0c090508bc76b3ea81dfc2198a71.in',
-                    'wa9e4628c334324e181e40f33f878c153f.hk',
-                    'xdcc5481252db5f38d5fc18c9ad3b2f7fd.cn',
-                    'yf32d9ac7f0a9f463e8da4736b12d7044a.tk'
-                ]
-
                 dga = random.choice(dga_domains)
-
-                try:
-                    dga_response = socket.gethostbyname(dga)
-                    print('DGA query sent: ' + dga + '   Response: ' + dga_response)
-                    stats['Total']['DGA'] += 1
-                    stats['Last 30 Seconds']['DGA'] += 1
-                    stats['Total']['Attacks'] += 1
-                    stats['Last 30 Seconds']['Attacks'] += 1
-                    
-                    if STATSD_HOST:
-                        client_stats.incr('dga')
-                        client_stats.incr('attacks')
-                        host_stats.incr('dga')
-                        host_stats.incr('attacks')
-
-                except Exception as e:
-                    print(str(e) + ' error resolving: ' + dga)
-                    stats['Total']['Error'] += 1
-                    stats['Last 30 Seconds']['Error'] += 1
-
-                    if STATSD_HOST:
-                        client_stats.incr('error')
-                        host_stats.incr('error')
-
+                dga_thread = threading.Thread(target=dga_attack, args=(dga,), daemon=True)
+                dga_thread.start()
+                
         time.sleep(REQUEST_WAIT_SECONDS)
 
 stats_thread = threading.Thread(target=statistics_server, daemon=True)
