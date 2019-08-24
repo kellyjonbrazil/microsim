@@ -29,7 +29,7 @@ START_TIME = int(time.time())
 HOST_NAME = ''
 
 padding = 0
-if STOP_PADDING:
+if STOP_SECONDS and STOP_PADDING:
     padding = random.choice(range(STOP_SECONDS))
 
 stats = {
