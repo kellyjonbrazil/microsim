@@ -120,69 +120,74 @@ If desired, a realtime statistics HTTP server can be enabled by specifying the `
 
 `microsimserver`:
 ```
-$ curl localhost:5000
+$ curl localhost:5001
 {
-  "time": "Tue Aug 20 18:29:32 2019",
-  "runtime": 80,
-  "hostname": "laptop.local",
-  "ip": "10.3.192.150",
+  "time": "Mon Aug 26 15:26:18 2019",
+  "runtime": 42,
+  "hostname": "server01",
+  "ip": "192.168.1.221",
   "stats": {
-    "Requests": 131,
-    "Sent Bytes": 13122535,
-    "Received Bytes": 132608,
-    "Attacks": 3,
+    "Requests": 138,
+    "Sent Bytes": 2284728,
+    "Received Bytes": 142968,
+    "Attacks": 2,
     "SQLi": 1,
-    "XSS": 1,
+    "XSS": 0,
     "Directory Traversal": 1
   },
   "config": {
     "LISTEN_PORT": 8080,
-    "STATS_PORT": 5000,
-    "STATSD_HOST": "localhost",
+    "STATS_PORT": 5001,
+    "STATSD_HOST": null,
     "STATSD_PORT": 8125,
-    "RESPOND_BYTES": 100000,
-    "STOP_SECONDS": 0
+    "RESPOND_BYTES": 16384,
+    "STOP_SECONDS": 60,
+    "STOP_PADDING": true,
+    "TOTAL_STOP_SECONDS": 102
   }
 }
 ```
 
 `microsimclient`:
 ```
-$ curl localhost:5001
+$ curl localhost:5000
 {
-  "time": "Tue Aug 20 18:29:44 2019",
-  "runtime": 90,
-  "hostname": "laptop.local",
-  "ip": "10.3.192.150",
+  "time": "Mon Aug 26 15:10:40 2019",
+  "runtime": 40,
+  "hostname": "client01",
+  "ip": "192.168.1.221",
   "stats": {
-    "Requests": 149,
-    "Sent Bytes": 154364,
-    "Received Bytes": 14925479,
-    "Internet Requests": 0,
-    "Attacks": 3,
-    "SQLi": 1,
-    "XSS": 1,
-    "Directory Traversal": 1,
+    "Requests": 125,
+    "Sent Bytes": 129500,
+    "Received Bytes": 2216193,
+    "Internet Requests": 12,
+    "Attacks": 0,
+    "SQLi": 0,
+    "XSS": 0,
+    "Directory Traversal": 0,
     "DGA": 0,
     "Malware": 0,
-    "Error": 0
+    "Error": 3
   },
   "config": {
-    "STATS_PORT": 5001,
-    "STATSD_HOST": "localhost",
+    "STATS_PORT": 5000,
+    "STATSD_HOST": null,
     "STATSD_PORT": 8125,
-    "REQUEST_URLS": "http://localhost:8080",
-    "REQUEST_INTERNET": false,
-    "REQUEST_MALWARE": false,
+    "REQUEST_URLS": "http://127.0.0.1:8080",
+    "REQUEST_INTERNET": true,
+    "REQUEST_MALWARE": true,
     "SEND_SQLI": true,
     "SEND_DIR_TRAVERSAL": true,
     "SEND_XSS": true,
-    "SEND_DGA": false,
-    "REQUEST_WAIT_SECONDS": 0.5,
+    "SEND_DGA": true,
+    "REQUEST_WAIT_SECONDS": 0.3,
     "REQUEST_BYTES": 1024,
-    "STOP_SECONDS": 0,
-    "ATTACK_PROBABILITY": 0.01,
-    "EGRESS_PROBABILITY": 0.1
+    "STOP_SECONDS": 60,
+    "STOP_PADDING": true,
+    "TOTAL_STOP_SECONDS": 75,
+    "REQUEST_PROBABILITY": 1.0,
+    "EGRESS_PROBABILITY": 0.1,
+    "ATTACK_PROBABILITY": 0.01
   }
 }
 ```
@@ -217,11 +222,13 @@ Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 
 `microsimserver`:
 ```
-127.0.0.1 - - [21/Aug/2019 17:30:17] "POST / HTTP/1.1" 200 -
-127.0.0.1 - - [21/Aug/2019 17:30:18] "POST / HTTP/1.1" 200 -
-127.0.0.1 - - [21/Aug/2019 17:30:18] "GET /?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd HTTP/1.1" 200 -
-Directory Traversal attack detected
-127.0.0.1 - - [21/Aug/2019 17:30:19] "POST / HTTP/1.1" 200 -
-127.0.0.1 - - [21/Aug/2019 17:30:19] "POST / HTTP/1.1" 200 -
-127.0.0.1 - - [21/Aug/2019 17:30:20] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Aug/2019 15:30:01] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Aug/2019 15:28:22] "GET /?username=joe%40example.com&password=pwd%3Cscript%3Ealert%28%27attacked%27%29%3C%2Fscript%3E HTTP/1.1" 200 -
+XSS attack detected
+127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
+{"Total": {"Requests": 391, "Sent Bytes": 6473451, "Received Bytes": 404040, "Attacks": 1, "SQLi": 0, "XSS": 1, "Directory Traversal": 0}, "Last 30 Seconds": {"Requests": 97, "Sent Bytes": 1605932, "Received Bytes": 100492, "Attacks": 0, "SQLi": 0, "XSS": 0, "Directory Traversal": 0}}
+127.0.0.1 - - [26/Aug/2019 15:30:03] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Aug/2019 15:30:03] "POST / HTTP/1.1" 200 -
 ```
