@@ -46,7 +46,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
 | `REQUEST_WAIT_SECONDS`  | `0` - ? (float)  | `1.0`        | Number of seconds to wait between request loop runs |
 | `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
-| `REQUEST_PROBABILITY`   | `0.9`               | `1.0`      | Float value representing the percentage probability of an internal request triggering per loop |
+| `REQUEST_PROBABILITY`   | `0.9` (float)       | `1.0`      | Float value representing the percentage probability of an internal request triggering per loop |
 | `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
 | `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
 | `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds     |
