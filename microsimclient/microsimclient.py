@@ -23,10 +23,11 @@ SEND_SQLI = str2bool(os.getenv('SEND_SQLI', False))
 SEND_DIR_TRAVERSAL = str2bool(os.getenv('SEND_DIR_TRAVERSAL', False))
 SEND_XSS = str2bool(os.getenv('SEND_XSS', False))
 SEND_DGA = str2bool(os.getenv('SEND_DGA', False))
-REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 3.0))
+REQUEST_WAIT_SECONDS = float(os.getenv('REQUEST_WAIT_SECONDS', 1.0))
 REQUEST_BYTES = int(os.getenv('REQUEST_BYTES', 1024))
 STOP_SECONDS = int(os.getenv('STOP_SECONDS', 0))
 STOP_PADDING = str2bool(os.getenv('STOP_PADDING', False))
+REQUEST_PROBABILITY = float(os.getenv('REQUEST_PROBABILITY', 1.0))
 ATTACK_PROBABILITY = float(os.getenv('ATTACK_PROBABILITY', 0.01))
 EGRESS_PROBABILITY = float(os.getenv('EGRESS_PROBABILITY', 0.1))
 STATS_PORT = os.getenv('STATS_PORT', None)
@@ -40,6 +41,18 @@ url_list = REQUEST_URLS.split(',')
 padding = 0
 if STOP_SECONDS and STOP_PADDING:
     padding = random.choice(range(STOP_SECONDS))
+
+attacks_selected = []
+if SEND_DGA:
+    attacks_selected.append('dga')
+if SEND_SQLI:
+    attacks_selected.append('sqli')
+if SEND_DIR_TRAVERSAL:
+    attacks_selected.append('dt')
+if SEND_XSS:
+    attacks_selected.append('xss')
+if REQUEST_MALWARE:
+    attacks_selected.append('malware')
 
 egress_sites = [
     'http://mirror.facebook.net/centos/',
@@ -168,7 +181,6 @@ def statistics_server():
 
 def main():
     while keep_running():
-
         if every_30_seconds():
             # Print and clear statistics
             print(json.dumps(stats))
@@ -216,12 +228,6 @@ def main():
                     client_stats.incr('error')
                     host_stats.incr('error')
 
-        # Put each internal request in its own thread
-        for url in url_list:
-            request_thread = threading.Thread(target=internal_request, args=(url,), daemon=True)
-            request_thread.start()
-            time.sleep(0.005)
-
         def sqli_attack(sqli_victim):
             parameters = {
                 'username': 'joe@example.com',
@@ -250,13 +256,6 @@ def main():
                 if STATSD_HOST:
                     client_stats.incr('error')
                     host_stats.incr('error')
-
-        # Put each SQLi attack in its own thread
-        if SEND_SQLI:
-            if random.random() < ATTACK_PROBABILITY:
-                sqli_victim = random.choice(url_list)
-                sqli_thread = threading.Thread(target=sqli_attack, args=(sqli_victim,), daemon=True)
-                sqli_thread.start()
 
         def xss_attack(xss_victim):
             parameters = {
@@ -287,13 +286,6 @@ def main():
                     client_stats.incr('error')
                     host_stats.incr('error')
 
-        # Put each XSS attack in its own thread
-        if SEND_XSS:
-            if random.random() < ATTACK_PROBABILITY:
-                xss_victim = random.choice(url_list)
-                xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
-                xss_thread.start()
-
         def dt_attack(dt_victim):
             parameters = {
                 'username': 'joe@example.com',
@@ -322,13 +314,6 @@ def main():
                 if STATSD_HOST:
                     client_stats.incr('error')
                     host_stats.incr('error')
-        
-        # Put each Directory Traversal attack in its own thread
-        if SEND_DIR_TRAVERSAL:
-            if random.random() < ATTACK_PROBABILITY:
-                dt_victim = random.choice(url_list)
-                dt_thread = threading.Thread(target=dt_attack, args=(dt_victim,), daemon=True)
-                dt_thread.start()
 
         def egress_request(egress_site):
             egress_internet = requests.Session()
@@ -355,13 +340,6 @@ def main():
                 if STATSD_HOST:
                     client_stats.incr('error')
                     host_stats.incr('error')
-
-        # Put each external internet request in its own thread
-        if REQUEST_INTERNET:
-            if random.random() < EGRESS_PROBABILITY:
-                egress_site = random.choice(egress_sites)
-                egress_thread = threading.Thread(target=egress_request, args=(egress_site,), daemon=True)
-                egress_thread.start()
                 
         def malware_request():
             eicar = requests.Session()
@@ -390,12 +368,6 @@ def main():
                     client_stats.incr('error')
                     host_stats.incr('error')
 
-        # Put each malware request in its own thread
-        if REQUEST_MALWARE:
-            if random.random() < ATTACK_PROBABILITY:
-                malware_thread = threading.Thread(target=malware_request, daemon=True)
-                malware_thread.start()
-
         def dga_attack(dga):
             try:
                 dga_response = socket.gethostbyname(dga)
@@ -420,12 +392,48 @@ def main():
                     client_stats.incr('error')
                     host_stats.incr('error')
 
-        # Put each DGA query in its own thread
-        if SEND_DGA:
+        # Put each internal request in its own thread
+        if random.random() < REQUEST_PROBABILITY:
+            url = random.choice(url_list)
+            request_thread = threading.Thread(target=internal_request, args=(url,), daemon=True)
+            request_thread.start()
+
+        # Put each external internet request in its own thread
+        if REQUEST_INTERNET:
+            if random.random() < EGRESS_PROBABILITY:
+                egress_site = random.choice(egress_sites)
+                egress_thread = threading.Thread(target=egress_request, args=(egress_site,), daemon=True)
+                egress_thread.start()
+
+        # Select only one attack per loop
+        if attacks_selected:
+            do_attack = random.choice(attacks_selected)
+
+            # Put each attack in its own thread
             if random.random() < ATTACK_PROBABILITY:
-                dga = random.choice(dga_domains)
-                dga_thread = threading.Thread(target=dga_attack, args=(dga,), daemon=True)
-                dga_thread.start()
+                if do_attack == 'dga':
+                        dga = random.choice(dga_domains)
+                        dga_thread = threading.Thread(target=dga_attack, args=(dga,), daemon=True)
+                        dga_thread.start()
+
+                if do_attack == 'sqli':
+                        sqli_victim = random.choice(url_list)
+                        sqli_thread = threading.Thread(target=sqli_attack, args=(sqli_victim,), daemon=True)
+                        sqli_thread.start()
+
+                if do_attack == 'malware':
+                        malware_thread = threading.Thread(target=malware_request, daemon=True)
+                        malware_thread.start()
+
+                if do_attack == 'dt':
+                        dt_victim = random.choice(url_list)
+                        dt_thread = threading.Thread(target=dt_attack, args=(dt_victim,), daemon=True)
+                        dt_thread.start()
+
+                if do_attack == 'xss':
+                        xss_victim = random.choice(url_list)
+                        xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
+                        xss_thread.start()
                 
         time.sleep(REQUEST_WAIT_SECONDS)
 
