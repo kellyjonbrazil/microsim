@@ -41,6 +41,15 @@ stats = {
         'SQLi': 0,
         'XSS': 0,
         'Directory Traversal': 0
+    },
+    'Last 30 Seconds': {
+        'Requests': 0,
+        'Sent Bytes': 0,
+        'Received Bytes': 0,
+        'Attacks': 0,
+        'SQLi': 0,
+        'XSS': 0,
+        'Directory Traversal': 0
     }
 }
 
@@ -65,6 +74,16 @@ def insert_data():
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     pass
 
+class state():
+    last_timestamp = START_TIME
+
+def every_30_seconds():
+    if state.last_timestamp + 30 > int(time.time()):
+        return False
+
+    state.last_timestamp = int(time.time())
+    return True
+
 class httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
     server_ip = socket.gethostbyname(server_name)
@@ -82,6 +101,8 @@ class httpd(BaseHTTPRequestHandler):
 
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
+        stats['Last 30 Seconds']['Requests'] += 1
+        stats['Last 30 Seconds']['Sent Bytes'] += len(body)
 
         if STATSD_HOST:
             server_stats.incr('requests')
@@ -93,6 +114,8 @@ class httpd(BaseHTTPRequestHandler):
             print('SQLi attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['SQLi'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['SQLi'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -104,6 +127,8 @@ class httpd(BaseHTTPRequestHandler):
             print('XSS attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['XSS'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['XSS'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -115,6 +140,8 @@ class httpd(BaseHTTPRequestHandler):
             print('Directory Traversal attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['Directory Traversal'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['Directory Traversal'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -142,6 +169,9 @@ class httpd(BaseHTTPRequestHandler):
         stats['Total']['Requests'] += 1
         stats['Total']['Sent Bytes'] += len(body)
         stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
+        stats['Last 30 Seconds']['Requests'] += 1
+        stats['Last 30 Seconds']['Sent Bytes'] += len(body)
+        stats['Last 30 Seconds']['Received Bytes'] += int(self.headers['Content-Length'])
 
         if STATSD_HOST:
             server_stats.incr('requests')
@@ -155,6 +185,8 @@ class httpd(BaseHTTPRequestHandler):
             print('SQLi attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['SQLi'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['SQLi'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -166,6 +198,8 @@ class httpd(BaseHTTPRequestHandler):
             print('XSS attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['XSS'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['XSS'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -177,6 +211,8 @@ class httpd(BaseHTTPRequestHandler):
             print('Directory Traversal attack detected')
             stats['Total']['Attacks'] += 1
             stats['Total']['Directory Traversal'] += 1
+            stats['Last 30 Seconds']['Attacks'] += 1
+            stats['Last 30 Seconds']['Directory Traversal'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -205,7 +241,9 @@ class stats_httpd(BaseHTTPRequestHandler):
                 'STATSD_HOST': STATSD_HOST,
                 'STATSD_PORT': STATSD_PORT,
                 'RESPOND_BYTES': RESPOND_BYTES,
-                'STOP_SECONDS': STOP_SECONDS
+                'STOP_SECONDS': STOP_SECONDS,
+                'STOP_PADDING': STOP_PADDING,
+                'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
             }
         }
         body = json.dumps(self.response, indent=2)
@@ -220,6 +258,19 @@ def main():
     microservice = ThreadingHTTPServer((HOST_NAME, LISTEN_PORT), httpd)
     while keep_running():
         microservice.handle_request()
+
+        if every_30_seconds():
+            # Print and clear statistics
+            print(json.dumps(stats))
+            stats['Last 30 Seconds'] = {
+                'Requests': 0,
+                'Sent Bytes': 0,
+                'Received Bytes': 0,
+                'Attacks': 0,
+                'SQLi': 0,
+                'XSS': 0,
+                'Directory Traversal': 0
+            }
 
 stats_thread = threading.Thread(target=statistics_server, daemon=True)
 stats_thread.start()

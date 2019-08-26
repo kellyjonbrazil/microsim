@@ -145,8 +145,11 @@ class httpd(BaseHTTPRequestHandler):
                 'REQUEST_WAIT_SECONDS': REQUEST_WAIT_SECONDS,
                 'REQUEST_BYTES': REQUEST_BYTES,
                 'STOP_SECONDS': STOP_SECONDS,
-                'ATTACK_PROBABILITY': ATTACK_PROBABILITY,
-                'EGRESS_PROBABILITY': EGRESS_PROBABILITY
+                'STOP_PADDING': STOP_PADDING,
+                'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
+                'REQUEST_PROBABILITY': REQUEST_PROBABILITY,
+                'EGRESS_PROBABILITY': EGRESS_PROBABILITY,
+                'ATTACK_PROBABILITY': ATTACK_PROBABILITY
             }
         }
         body = json.dumps(self.response, indent=2)
@@ -397,6 +400,8 @@ def main():
             url = random.choice(url_list)
             request_thread = threading.Thread(target=internal_request, args=(url,), daemon=True)
             request_thread.start()
+        else:
+            print('Skipped internal request this run.')
 
         # Put each external internet request in its own thread
         if REQUEST_INTERNET:
