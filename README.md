@@ -27,7 +27,8 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `STATSD_HOST`      | `"1.2.3.4"`     | None             | Enable sending StatsD stats to the specified host |
 | `STATSD_PORT`      | `1` - `65535`   | `8125`           | Modify the default StatsD destination port, if desired |
 | `RESPOND_BYTES`    | `1` - ?         | `16384`          | How many data bytes are added to the response   |
-| `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds           |
+| `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds                 |
+| `STOP_PADDING`     | `True`/`False`  | `False`          | Add random padding to `STOP_SECONDS`            |
 
 `microsimclient`
 
@@ -43,11 +44,13 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `SEND_XSS`              | `True`/`False`      | `False`    | Occasionally send XSS to the REQUEST_URLS                 |
 | `SEND_DIR_TRAVERSAL`    | `True`/`False`      | `False`    | Occasionally send Directory Traversal to the REQUEST_URLS |
 | `SEND_DGA`              | `True`/`False`      | `False`    | Occasionally send DGA DNS requests to the resolver        |
-| `REQUEST_WAIT_SECONDS`  | `0` - ? (float)  | `3`        | Number of seconds to wait between request loop runs       |
+| `REQUEST_WAIT_SECONDS`  | `0` - ? (float)  | `1.0`        | Number of seconds to wait between request loop runs |
 | `REQUEST_BYTES`         | `1` - `7980`        | `1024`     | How many data bytes are added to the request              |
-| `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
+| `REQUEST_PROBABILITY`   | `0.9`               | `1.0`      | Float value representing the percentage probability of an internal request triggering per loop |
 | `EGRESS_PROBABILITY`    | `0.1` (float)       | `0.1`      | Float value representing the percentage probability of an egress Internet request triggering per loop |
-| `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds                     |
+| `ATTACK_PROBABILITY`    | `0.01` (float)      | `0.01`     | Float value representing the percentage probability of one of the attack behaviors triggering per loop |
+| `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds     |
+| `STOP_PADDING`          | `True`/`False`      | `False`    | Add random padding to `STOP_SECONDS`            |
 
 Example docker commands:
 ```
@@ -58,6 +61,7 @@ docker run -d --rm \
     -e STATSD_PORT=8100 \
     -e RESPOND_BYTES=1024 \
     -e STOP_SECONDS=300 \
+    -e STOP_PADDING=True \
     -p 8080:8080 \
     kellybrazil/microsimserver
 ```
@@ -76,9 +80,11 @@ docker run -d --rm \
     -e SEND_DGA=True \
     -e REQUEST_WAIT_SECONDS=0.5 \
     -e REQUEST_BYTES=128 \
-    -e ATTACK_PROBABILITY=0.05 \
+    -e REQUEST_PROBABILITY=0.9 \
     -e EGRESS_PROBABILITY=0.3 \
+    -e ATTACK_PROBABILITY=0.05 \
     -e STOP_SECONDS=300 \
+    -e STOP_PADDING=True \
     kellybrazil/microsimclient
 ```
 
