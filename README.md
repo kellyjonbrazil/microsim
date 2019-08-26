@@ -63,6 +63,7 @@ docker run -d --rm \
     -e STOP_SECONDS=300 \
     -e STOP_PADDING=True \
     -p 8080:8080 \
+    -p 5001:5001 \
     kellybrazil/microsimserver
 ```
 
@@ -85,6 +86,7 @@ docker run -d --rm \
     -e ATTACK_PROBABILITY=0.05 \
     -e STOP_SECONDS=300 \
     -e STOP_PADDING=True \
+    -p 5000:5000 \
     kellybrazil/microsimclient
 ```
 
