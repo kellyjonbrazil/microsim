@@ -1,4 +1,4 @@
-# microsim
+# microsim (Microservice Simulator)
 
 The purpose of this project is to be able to easily set up kubernetes deployments with somewhat realistic/controllable traffic and attacks to test load balancing, WAF, and other security solutions in the cluster.
 
