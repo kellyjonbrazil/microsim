@@ -84,9 +84,7 @@ spec:
             - name: RESPOND_BYTES
               value: "32768"
             - name: STOP_SECONDS
-              value: "420"
-            - name: STOP_PADDING
-              value: "True"
+              value: "240"
             - name: STATS_PORT
               value: "5000"
             - name: STATSD_HOST
