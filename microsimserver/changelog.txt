@@ -1,5 +1,10 @@
 microsimserver changelog
 
+20190827 v0.5
+- Add more configuration information to HTTP stats
+- Add STOP_PADDING parameter to add random seconds to STOP_SECONDS
+- Add stats to the log every 30 seconds
+
 20190821 v0.3
 - Add stats http server
 - Add statsd client

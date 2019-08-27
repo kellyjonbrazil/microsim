@@ -1,5 +1,12 @@
 microsimclient changelog
 
+20190827 v0.5
+- Fix probabilities for attacks and internal requests
+- Add REQUEST_PROBABILITY parameter to control internal requests
+- Add more configuration information to HTTP stats
+- Make all requests threaded to prevent blocking
+- Add STOP_PADDING parameter to add random seconds to STOP_SECONDS
+
 20190821 v0.3
 - Change REQUEST_WAIT_SECONDS to float
 - Fix parameter boolean logic

@@ -161,3 +161,25 @@ The following features are enabled in this deployment:
 
 > Note: this deployment may require more CPU than the minimal Cluster configuration in GKE
 
+## Crashing Service Deployment
+
+This deployment is identical to the `Monitoring Deployment` except the `db` containers are configured to crash simultaneously every 240 seconds. This will cause a bit of havoc on the cluster including crash loop back-offs for the Pods:
+
+```
+user@cloudshell:~ (project-250223)$ kubectl get pods
+NAME                      READY   STATUS             RESTARTS   AGE
+auth-577c69756f-l2rmd     1/1     Running            0          3h56m
+auth-577c69756f-qhtmq     1/1     Running            0          3h56m
+db-85ff5d5c88-7wrlx       0/1     CrashLoopBackOff   28         3h56m
+db-85ff5d5c88-b8g2b       0/1     CrashLoopBackOff   28         3h56m
+statsd-5d49485cbf-bbs4m   1/1     Running            0          3h56m
+www-97cfbbd7d-wcqjx       1/1     Running            0          3h56m
+```
+
+Graphite will show corresponding waves in the bytes sent/received graph:
+
+![StatsD UI](https://github.com/kellyjonbrazil/microsim/blob/master/k8s_deployments/images/graphite-crashing.png)
+
+You can set the `STOP_PADDING` parameter to `True` on the `db` container spec if you would like to smooth out the graph. This will add a random padding to each Pod before it crashes so they will not likely crash simultaneously.  In that case, the Kubernetes Service will still be able to deliver the traffic to the available Pod while it restarts the crashed Pod.
+
+> Note: this deployment may require more CPU than the minimal Cluster configuration in GKE
