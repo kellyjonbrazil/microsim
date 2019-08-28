@@ -23,10 +23,10 @@ The following features are enabled in this deployment:
 - WWW Service
     - 3 Pods running the Server and Client
     - Service is publicly exposed via LoadBalancer on port 80
-    - Each client makes HTTP requests to the `auth` and `db` services on port 8080 every 3 seconds
-        - request size is 1KB
-    - Each client makes HTTP requests out to the internet on port 80 approximately every 10 requests
-    - Each client sends a SQLi attack to the `auth` and `db` services approximately every 100 requests
+    - Each client makes an HTTP request to the `auth` or `db` service on port 8080 every second
+        - Request size is 1KB
+    - Each client makes HTTP requests out to the internet on port 80 approximately every 10 seconds
+    - Each client sends a SQLi attack to the `auth` and `db` services approximately every 100 seconds
 - Auth Service
     - 3 Pods running the Server
     - Internal service only running on port 8080
@@ -142,10 +142,10 @@ The following features are enabled in this deployment:
 - WWW Service
     - 1 Pod running the Client with the realtime stats http server enabled on port 5000
     - Service is publicly exposed via LoadBalancer on port 80
-    - Client makes HTTP requests to the `auth` and `db` services on port 8080 every .5 seconds
-        - request size is 4KB
-    - Client makes HTTP requests out to the internet on port 80 approximately every 10 requests
-    - Client sends one of: SQLi, XSS, Directory Traversal, Malware Download, and DGA attacks to the `auth` and `db` services and Internet with a 1% chance per loop
+    - Client makes an HTTP request to the `auth` or `db` services on port 8080 every 0.5 seconds
+        - Request size is 4KB
+    - Client makes HTTP requests out to the internet on port 80 approximately every 5 seconds
+    - Client sends one of: SQLi, XSS, Directory Traversal, Malware Download, and DGA attacks to the `auth` and `db` services and Internet approximately every 50 seconds
 - Auth Service
     - 2 Pods running the Server with the realtime stats http server enabled on port 5000
     - Internal service only running on port 8080
