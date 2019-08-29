@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: www
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: www
   template:
     metadata:
       labels:
@@ -38,12 +41,15 @@ spec:
             - name: STATSD_HOST
               value: "statsd-stats.default.svc.cluster.local"
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth
 spec:
   replicas: 2
+  selector:
+    matchLabels:
+      app: auth
   template:
     metadata:
       labels:
@@ -63,12 +69,15 @@ spec:
             - name: STATSD_HOST
               value: "statsd-stats.default.svc.cluster.local"
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db
 spec:
   replicas: 2
+  selector:
+    matchLabels:
+      app: db
   template:
     metadata:
       labels:
@@ -90,12 +99,15 @@ spec:
             - name: STATSD_HOST
               value: "statsd-stats.default.svc.cluster.local"
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: statsd
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: statsd
   template:
     metadata:
       labels:

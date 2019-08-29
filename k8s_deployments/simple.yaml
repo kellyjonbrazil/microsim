@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: www
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: www
   template:
     metadata:
       labels:
@@ -24,12 +27,15 @@ spec:
           - name: SEND_SQLI
             value: "True"
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: auth
   template:
     metadata:
       labels:
@@ -41,12 +47,15 @@ spec:
           ports:
             - containerPort: 8080
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: db
   template:
     metadata:
       labels:
