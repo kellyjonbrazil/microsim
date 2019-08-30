@@ -18,7 +18,7 @@ Sample Kubernetes deployments can be found in the https://github.com/kellyjonbra
 
 All parameters are set via environment variables. Unset parameters will use the defaults:
 
-`microsimserver`
+### microsimserver:
 
 | Parameter          | Values          | Default          | Description                                     |
 | ------------------ |-----------------| -----------------| ------------------------------------------------|
@@ -30,7 +30,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `STOP_SECONDS`     | `0` - ?         | `0` (never stop) | Kill the server after x seconds                 |
 | `STOP_PADDING`     | `True`/`False`  | `False`          | Add random padding to `STOP_SECONDS`            |
 
-`microsimclient`
+### microsimclient:
 
 | Parameter             | Values          | Default  | Description                                     |
 | --------------------- |-----------------| ---------| ------------------------------------------------|
@@ -52,7 +52,7 @@ All parameters are set via environment variables. Unset parameters will use the 
 | `STOP_SECONDS`          | `0` - ?             | `0` (never stop) | Kill the client after x seconds     |
 | `STOP_PADDING`          | `True`/`False`      | `False`    | Add random padding to `STOP_SECONDS`            |
 
-Example docker commands:
+### Example docker commands:
 ```
 docker run -d --rm \
     -e LISTEN_PORT=8080 \
@@ -90,7 +90,7 @@ docker run -d --rm \
     kellybrazil/microsimclient
 ```
 
-Example response from the `microsimserver`:
+## Example response from the microsimserver:
 ```
 $ curl -X POST localhost:8080/any_arbitrary_path | jq .
 {
@@ -120,7 +120,7 @@ The `microsimclient` similarly POST's a `data` field in the request body which i
 
 If desired, a realtime statistics HTTP server can be enabled by specifying the `STATS_PORT` parameter for both the client and the server. The curl command is included in the Docker container so local and remote stats can also be pulled from within the container. Example output:
 
-`microsimserver`:
+### microsimserver:
 ```
 $ curl localhost:5001
 {
@@ -150,7 +150,7 @@ $ curl localhost:5001
 }
 ```
 
-`microsimclient`:
+### microsimclient:
 ```
 $ curl localhost:5000
 {
@@ -202,7 +202,7 @@ By configuring the `STATSD_HOST` and the optional `STATSD_PORT` (default UDP por
 
 Both the client and server log output to stdout, which will show up in docker and kubernetes logs. The logs will summarize the requests and errors and will also print a summary every 30 seconds of total stats and the stats for the last 30 seconds.
 
-`microsimclient`:
+### microsimclient:
 ```
 Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 Directory Traversal sent: http://localhost:8080/?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd
@@ -222,7 +222,7 @@ Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 ```
 
-`microsimserver`:
+### microsimserver:
 ```
 127.0.0.1 - - [26/Aug/2019 15:30:01] "POST / HTTP/1.1" 200 -
 127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
