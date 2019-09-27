@@ -115,6 +115,8 @@ if STATSD_HOST:
                              host=STATSD_HOST,
                              port=STATSD_PORT)
 
+lock = threading.Lock()
+
 class httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
     server_ip = socket.gethostbyname(server_name)
@@ -159,11 +161,12 @@ class state():
     last_timestamp = START_TIME
 
 def every_30_seconds():
-    if state.last_timestamp + 30 > int(time.time()):
-        return False
+    with lock:
+        if state.last_timestamp + 30 > int(time.time()):
+            return False
 
-    state.last_timestamp = int(time.time())
-    return True
+        state.last_timestamp = int(time.time())
+        return True
 
 def keep_running():
     if not REQUEST_URLS:
@@ -207,12 +210,13 @@ def main():
             try:
                 response = requests.post(url, json=json_body)
                 print('Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
-                stats['Total']['Requests'] += 1
-                stats['Last 30 Seconds']['Requests'] += 1
-                stats['Total']['Sent Bytes'] += len(response.request.body)
-                stats['Last 30 Seconds']['Sent Bytes'] += len(response.request.body)
-                stats['Total']['Received Bytes'] += len(response.content)
-                stats['Last 30 Seconds']['Received Bytes'] += len(response.content)
+                with lock:
+                    stats['Total']['Requests'] += 1
+                    stats['Last 30 Seconds']['Requests'] += 1
+                    stats['Total']['Sent Bytes'] += len(response.request.body)
+                    stats['Last 30 Seconds']['Sent Bytes'] += len(response.request.body)
+                    stats['Total']['Received Bytes'] += len(response.content)
+                    stats['Last 30 Seconds']['Received Bytes'] += len(response.content)
 
                 if STATSD_HOST:
                     client_stats.incr('requests')
@@ -224,8 +228,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + url)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -240,10 +245,11 @@ def main():
             try:
                 sqli = requests.get(sqli_victim, params=parameters)
                 print('SQLi sent: ' + sqli.url)
-                stats['Total']['SQLi'] += 1
-                stats['Last 30 Seconds']['SQLi'] += 1
-                stats['Total']['Attacks'] += 1
-                stats['Last 30 Seconds']['Attacks'] += 1
+                with lock:
+                    stats['Total']['SQLi'] += 1
+                    stats['Last 30 Seconds']['SQLi'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('sqli')
@@ -253,8 +259,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + sqli_victim)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -269,10 +276,11 @@ def main():
             try:
                 xss = requests.get(xss_victim, params=parameters)
                 print('XSS sent: ' + xss.url)
-                stats['Total']['XSS'] += 1
-                stats['Last 30 Seconds']['XSS'] += 1
-                stats['Total']['Attacks'] += 1
-                stats['Last 30 Seconds']['Attacks'] += 1
+                with lock:
+                    stats['Total']['XSS'] += 1
+                    stats['Last 30 Seconds']['XSS'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('xss')
@@ -282,8 +290,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + xss_victim)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -298,10 +307,11 @@ def main():
             try:
                 dirtraversal = requests.get(dt_victim, params=parameters)
                 print('Directory Traversal sent: ' + dirtraversal.url)
-                stats['Total']['Directory Traversal'] += 1
-                stats['Last 30 Seconds']['Directory Traversal'] += 1
-                stats['Total']['Attacks'] += 1
-                stats['Last 30 Seconds']['Attacks'] += 1
+                with lock:
+                    stats['Total']['Directory Traversal'] += 1
+                    stats['Last 30 Seconds']['Directory Traversal'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('directory_traversal')
@@ -311,8 +321,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + dt_victim)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -324,10 +335,11 @@ def main():
             try:
                 egress_internet = egress_internet.get(egress_site, allow_redirects=True)
                 print('Internet request to: ' + egress_internet.url)
-                stats['Total']['Internet Requests'] += 1
-                stats['Last 30 Seconds']['Internet Requests'] += 1
-                stats['Total']['Received Bytes'] += len(egress_internet.content)
-                stats['Last 30 Seconds']['Received Bytes'] += len(egress_internet.content)
+                with lock:
+                    stats['Total']['Internet Requests'] += 1
+                    stats['Last 30 Seconds']['Internet Requests'] += 1
+                    stats['Total']['Received Bytes'] += len(egress_internet.content)
+                    stats['Last 30 Seconds']['Received Bytes'] += len(egress_internet.content)
 
                 if STATSD_HOST:
                     client_stats.incr('internet_requests')
@@ -337,8 +349,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + egress_site)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -351,10 +364,11 @@ def main():
             try:
                 eicar = eicar.get(eicar_url)
                 print('Malware downloaded: ' + eicar.text)
-                stats['Total']['Malware'] += 1
-                stats['Last 30 Seconds']['Malware'] += 1
-                stats['Total']['Attacks'] += 1
-                stats['Last 30 Seconds']['Attacks'] += 1
+                with lock:
+                    stats['Total']['Malware'] += 1
+                    stats['Last 30 Seconds']['Malware'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('malware')
@@ -364,8 +378,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error to: ' + eicar_url)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -375,10 +390,11 @@ def main():
             try:
                 dga_response = socket.gethostbyname(dga)
                 print('DGA query sent: ' + dga + '   Response: ' + dga_response)
-                stats['Total']['DGA'] += 1
-                stats['Last 30 Seconds']['DGA'] += 1
-                stats['Total']['Attacks'] += 1
-                stats['Last 30 Seconds']['Attacks'] += 1
+                with lock:
+                    stats['Total']['DGA'] += 1
+                    stats['Last 30 Seconds']['DGA'] += 1
+                    stats['Total']['Attacks'] += 1
+                    stats['Last 30 Seconds']['Attacks'] += 1
                 
                 if STATSD_HOST:
                     client_stats.incr('dga')
@@ -388,8 +404,9 @@ def main():
 
             except Exception as e:
                 print(str(e) + ' error resolving: ' + dga)
-                stats['Total']['Error'] += 1
-                stats['Last 30 Seconds']['Error'] += 1
+                with lock:
+                    stats['Total']['Error'] += 1
+                    stats['Last 30 Seconds']['Error'] += 1
 
                 if STATSD_HOST:
                     client_stats.incr('error')
@@ -439,7 +456,8 @@ def main():
                         xss_victim = random.choice(url_list)
                         xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
                         xss_thread.start()
-                
+
+        request_thread.join()
         time.sleep(REQUEST_WAIT_SECONDS)
 
 stats_thread = threading.Thread(target=statistics_server, daemon=True)
