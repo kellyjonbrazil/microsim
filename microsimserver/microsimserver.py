@@ -62,6 +62,8 @@ if STATSD_HOST:
                              host=STATSD_HOST,
                              port=STATSD_PORT)
 
+lock = threading.Lock()
+
 def keep_running():
     if (STOP_SECONDS != 0) and ((START_TIME + STOP_SECONDS + padding) < int(time.time())):
         sys.exit('Server killed after ' + str(int(STOP_SECONDS) + int(padding)) + ' seconds.')
@@ -78,11 +80,12 @@ class state():
     last_timestamp = START_TIME
 
 def every_30_seconds():
-    if state.last_timestamp + 30 > int(time.time()):
-        return False
+    with lock:
+        if state.last_timestamp + 30 > int(time.time()):
+            return False
 
-    state.last_timestamp = int(time.time())
-    return True
+        state.last_timestamp = int(time.time())
+        return True
 
 class httpd(BaseHTTPRequestHandler):
     server_name = socket.gethostname()
@@ -99,10 +102,11 @@ class httpd(BaseHTTPRequestHandler):
         body = data + info
         self.wfile.write(body.encode('utf-8'))
 
-        stats['Total']['Requests'] += 1
-        stats['Total']['Sent Bytes'] += len(body)
-        stats['Last 30 Seconds']['Requests'] += 1
-        stats['Last 30 Seconds']['Sent Bytes'] += len(body)
+        with lock:
+            stats['Total']['Requests'] += 1
+            stats['Total']['Sent Bytes'] += len(body)
+            stats['Last 30 Seconds']['Requests'] += 1
+            stats['Last 30 Seconds']['Sent Bytes'] += len(body)
 
         if STATSD_HOST:
             server_stats.incr('requests')
@@ -112,10 +116,11 @@ class httpd(BaseHTTPRequestHandler):
             
         if re.search('UNION SELECT', urllib.parse.unquote_plus(self.path)):
             print('SQLi attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['SQLi'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['SQLi'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['SQLi'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['SQLi'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -125,10 +130,11 @@ class httpd(BaseHTTPRequestHandler):
 
         if re.search('<script>alert', urllib.parse.unquote(self.path)):
             print('XSS attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['XSS'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['XSS'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['XSS'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['XSS'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -138,10 +144,11 @@ class httpd(BaseHTTPRequestHandler):
 
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
             print('Directory Traversal attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['Directory Traversal'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['Directory Traversal'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['Directory Traversal'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['Directory Traversal'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -166,12 +173,13 @@ class httpd(BaseHTTPRequestHandler):
         }
         body = json.dumps(self.response)
         self.wfile.write(body.encode('utf-8'))
-        stats['Total']['Requests'] += 1
-        stats['Total']['Sent Bytes'] += len(body)
-        stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
-        stats['Last 30 Seconds']['Requests'] += 1
-        stats['Last 30 Seconds']['Sent Bytes'] += len(body)
-        stats['Last 30 Seconds']['Received Bytes'] += int(self.headers['Content-Length'])
+        with lock:
+            stats['Total']['Requests'] += 1
+            stats['Total']['Sent Bytes'] += len(body)
+            stats['Total']['Received Bytes'] += int(self.headers['Content-Length'])
+            stats['Last 30 Seconds']['Requests'] += 1
+            stats['Last 30 Seconds']['Sent Bytes'] += len(body)
+            stats['Last 30 Seconds']['Received Bytes'] += int(self.headers['Content-Length'])
 
         if STATSD_HOST:
             server_stats.incr('requests')
@@ -183,10 +191,11 @@ class httpd(BaseHTTPRequestHandler):
 
         if re.search(';UNION SELECT 1, version() limit 1,1--', urllib.parse.unquote(self.path)):
             print('SQLi attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['SQLi'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['SQLi'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['SQLi'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['SQLi'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -196,10 +205,11 @@ class httpd(BaseHTTPRequestHandler):
 
         if re.search("pwd<script>alert('attacked')</script>", urllib.parse.unquote(self.path)):
             print('XSS attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['XSS'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['XSS'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['XSS'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['XSS'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -209,10 +219,11 @@ class httpd(BaseHTTPRequestHandler):
 
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
             print('Directory Traversal attack detected')
-            stats['Total']['Attacks'] += 1
-            stats['Total']['Directory Traversal'] += 1
-            stats['Last 30 Seconds']['Attacks'] += 1
-            stats['Last 30 Seconds']['Directory Traversal'] += 1
+            with lock:
+                stats['Total']['Attacks'] += 1
+                stats['Total']['Directory Traversal'] += 1
+                stats['Last 30 Seconds']['Attacks'] += 1
+                stats['Last 30 Seconds']['Directory Traversal'] += 1
 
             if STATSD_HOST:
                 server_stats.incr('attacks')
@@ -229,23 +240,24 @@ class stats_httpd(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.response = {
-            'time': time.asctime(),
-            'runtime': int(time.time() - START_TIME),
-            'hostname': self.server_name,
-            'ip': self.server_ip,
-            'stats': stats['Total'],
-            'config': {
-                'LISTEN_PORT': LISTEN_PORT,
-                'STATS_PORT': int(STATS_PORT),
-                'STATSD_HOST': STATSD_HOST,
-                'STATSD_PORT': STATSD_PORT,
-                'RESPOND_BYTES': RESPOND_BYTES,
-                'STOP_SECONDS': STOP_SECONDS,
-                'STOP_PADDING': STOP_PADDING,
-                'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
+        with lock:
+            self.response = {
+                'time': time.asctime(),
+                'runtime': int(time.time() - START_TIME),
+                'hostname': self.server_name,
+                'ip': self.server_ip,
+                'stats': stats['Total'],
+                'config': {
+                    'LISTEN_PORT': LISTEN_PORT,
+                    'STATS_PORT': int(STATS_PORT),
+                    'STATSD_HOST': STATSD_HOST,
+                    'STATSD_PORT': STATSD_PORT,
+                    'RESPOND_BYTES': RESPOND_BYTES,
+                    'STOP_SECONDS': STOP_SECONDS,
+                    'STOP_PADDING': STOP_PADDING,
+                    'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
+                }
             }
-        }
         body = json.dumps(self.response, indent=2)
         self.wfile.write(body.encode('utf-8'))
 
