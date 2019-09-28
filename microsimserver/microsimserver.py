@@ -273,16 +273,17 @@ def main():
 
         if every_30_seconds():
             # Print and clear statistics
-            print(json.dumps(stats))
-            stats['Last 30 Seconds'] = {
-                'Requests': 0,
-                'Sent Bytes': 0,
-                'Received Bytes': 0,
-                'Attacks': 0,
-                'SQLi': 0,
-                'XSS': 0,
-                'Directory Traversal': 0
-            }
+            with lock:
+                print(json.dumps(stats))
+                stats['Last 30 Seconds'] = {
+                    'Requests': 0,
+                    'Sent Bytes': 0,
+                    'Received Bytes': 0,
+                    'Attacks': 0,
+                    'SQLi': 0,
+                    'XSS': 0,
+                    'Directory Traversal': 0
+                }
 
 stats_thread = threading.Thread(target=statistics_server, daemon=True)
 stats_thread.start()

@@ -127,33 +127,34 @@ class httpd(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.response = {
-            'time': time.asctime(),
-            'runtime': int(time.time() - START_TIME),
-            'hostname': self.server_name,
-            'ip': self.server_ip,
-            'stats': stats['Total'],
-            'config': {
-                'STATS_PORT': int(STATS_PORT),
-                'STATSD_HOST': STATSD_HOST,
-                'STATSD_PORT': STATSD_PORT,
-                'REQUEST_URLS': REQUEST_URLS,
-                'REQUEST_INTERNET': REQUEST_INTERNET,
-                'REQUEST_MALWARE': REQUEST_MALWARE,
-                'SEND_SQLI': SEND_SQLI,
-                'SEND_DIR_TRAVERSAL': SEND_DIR_TRAVERSAL,
-                'SEND_XSS': SEND_XSS,
-                'SEND_DGA': SEND_DGA,
-                'REQUEST_WAIT_SECONDS': REQUEST_WAIT_SECONDS,
-                'REQUEST_BYTES': REQUEST_BYTES,
-                'STOP_SECONDS': STOP_SECONDS,
-                'STOP_PADDING': STOP_PADDING,
-                'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
-                'REQUEST_PROBABILITY': REQUEST_PROBABILITY,
-                'EGRESS_PROBABILITY': EGRESS_PROBABILITY,
-                'ATTACK_PROBABILITY': ATTACK_PROBABILITY
+        with lock:
+            self.response = {
+                'time': time.asctime(),
+                'runtime': int(time.time() - START_TIME),
+                'hostname': self.server_name,
+                'ip': self.server_ip,
+                'stats': stats['Total'],
+                'config': {
+                    'STATS_PORT': int(STATS_PORT),
+                    'STATSD_HOST': STATSD_HOST,
+                    'STATSD_PORT': STATSD_PORT,
+                    'REQUEST_URLS': REQUEST_URLS,
+                    'REQUEST_INTERNET': REQUEST_INTERNET,
+                    'REQUEST_MALWARE': REQUEST_MALWARE,
+                    'SEND_SQLI': SEND_SQLI,
+                    'SEND_DIR_TRAVERSAL': SEND_DIR_TRAVERSAL,
+                    'SEND_XSS': SEND_XSS,
+                    'SEND_DGA': SEND_DGA,
+                    'REQUEST_WAIT_SECONDS': REQUEST_WAIT_SECONDS,
+                    'REQUEST_BYTES': REQUEST_BYTES,
+                    'STOP_SECONDS': STOP_SECONDS,
+                    'STOP_PADDING': STOP_PADDING,
+                    'TOTAL_STOP_SECONDS': STOP_SECONDS + padding,
+                    'REQUEST_PROBABILITY': REQUEST_PROBABILITY,
+                    'EGRESS_PROBABILITY': EGRESS_PROBABILITY,
+                    'ATTACK_PROBABILITY': ATTACK_PROBABILITY
+                }
             }
-        }
         body = json.dumps(self.response, indent=2)
         self.wfile.write(body.encode('utf-8'))
 
@@ -189,20 +190,21 @@ def main():
     while keep_running():
         if every_30_seconds():
             # Print and clear statistics
-            print(json.dumps(stats))
-            stats['Last 30 Seconds'] = {
-                'Requests': 0,
-                'Sent Bytes': 0,
-                'Received Bytes': 0,
-                'Internet Requests': 0,
-                'Attacks': 0,
-                'SQLi': 0,
-                'XSS': 0,
-                'Directory Traversal': 0,
-                'DGA': 0,
-                'Malware': 0,
-                'Error': 0
-            }
+            with lock:
+                print(json.dumps(stats))
+                stats['Last 30 Seconds'] = {
+                    'Requests': 0,
+                    'Sent Bytes': 0,
+                    'Received Bytes': 0,
+                    'Internet Requests': 0,
+                    'Attacks': 0,
+                    'SQLi': 0,
+                    'XSS': 0,
+                    'Directory Traversal': 0,
+                    'DGA': 0,
+                    'Malware': 0,
+                    'Error': 0
+                }
 
         json_body = {'data': insert_data()}
 
@@ -434,28 +436,28 @@ def main():
             # Put each attack in its own thread
             if random.random() < ATTACK_PROBABILITY:
                 if do_attack == 'dga':
-                        dga = random.choice(dga_domains)
-                        dga_thread = threading.Thread(target=dga_attack, args=(dga,), daemon=True)
-                        dga_thread.start()
+                    dga = random.choice(dga_domains)
+                    dga_thread = threading.Thread(target=dga_attack, args=(dga,), daemon=True)
+                    dga_thread.start()
 
                 if do_attack == 'sqli':
-                        sqli_victim = random.choice(url_list)
-                        sqli_thread = threading.Thread(target=sqli_attack, args=(sqli_victim,), daemon=True)
-                        sqli_thread.start()
+                    sqli_victim = random.choice(url_list)
+                    sqli_thread = threading.Thread(target=sqli_attack, args=(sqli_victim,), daemon=True)
+                    sqli_thread.start()
 
                 if do_attack == 'malware':
-                        malware_thread = threading.Thread(target=malware_request, daemon=True)
-                        malware_thread.start()
+                    malware_thread = threading.Thread(target=malware_request, daemon=True)
+                    malware_thread.start()
 
                 if do_attack == 'dt':
-                        dt_victim = random.choice(url_list)
-                        dt_thread = threading.Thread(target=dt_attack, args=(dt_victim,), daemon=True)
-                        dt_thread.start()
+                    dt_victim = random.choice(url_list)
+                    dt_thread = threading.Thread(target=dt_attack, args=(dt_victim,), daemon=True)
+                    dt_thread.start()
 
                 if do_attack == 'xss':
-                        xss_victim = random.choice(url_list)
-                        xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
-                        xss_thread.start()
+                    xss_victim = random.choice(url_list)
+                    xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
+                    xss_thread.start()
 
         request_thread.join()
         time.sleep(REQUEST_WAIT_SECONDS)
