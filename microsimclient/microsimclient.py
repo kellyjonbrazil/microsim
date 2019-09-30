@@ -210,7 +210,7 @@ def main():
         def internal_request(url):
             try:
                 response = requests.post(url, json=json_body, timeout=3)
-                print('Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
                 with lock:
                     stats['Total']['Requests'] += 1
                     stats['Last 30 Seconds']['Requests'] += 1
@@ -228,7 +228,7 @@ def main():
                     host_stats.incr('received_bytes', len(response.content))
 
             except Exception as e:
-                print(str(e) + ' error to: ' + url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + url)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -245,7 +245,7 @@ def main():
 
             try:
                 sqli = requests.get(sqli_victim, params=parameters, timeout=3)
-                print('SQLi sent: ' + sqli.url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   SQLi sent: ' + sqli.url)
                 with lock:
                     stats['Total']['SQLi'] += 1
                     stats['Last 30 Seconds']['SQLi'] += 1
@@ -259,7 +259,7 @@ def main():
                     host_stats.incr('attacks')
 
             except Exception as e:
-                print(str(e) + ' error to: ' + sqli_victim)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + sqli_victim)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -276,7 +276,7 @@ def main():
 
             try:
                 xss = requests.get(xss_victim, params=parameters, timeout=3)
-                print('XSS sent: ' + xss.url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   XSS sent: ' + xss.url)
                 with lock:
                     stats['Total']['XSS'] += 1
                     stats['Last 30 Seconds']['XSS'] += 1
@@ -290,7 +290,7 @@ def main():
                     host_stats.incr('attacks')
 
             except Exception as e:
-                print(str(e) + ' error to: ' + xss_victim)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + xss_victim)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -307,7 +307,7 @@ def main():
 
             try:
                 dirtraversal = requests.get(dt_victim, params=parameters, timeout=3)
-                print('Directory Traversal sent: ' + dirtraversal.url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Directory Traversal sent: ' + dirtraversal.url)
                 with lock:
                     stats['Total']['Directory Traversal'] += 1
                     stats['Last 30 Seconds']['Directory Traversal'] += 1
@@ -321,7 +321,7 @@ def main():
                     host_stats.incr('attacks')
 
             except Exception as e:
-                print(str(e) + ' error to: ' + dt_victim)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + dt_victim)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -335,7 +335,7 @@ def main():
                 
             try:
                 egress_internet = egress_internet.get(egress_site, allow_redirects=True, timeout=3)
-                print('Internet request to: ' + egress_internet.url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Internet request to: ' + egress_internet.url)
                 with lock:
                     stats['Total']['Internet Requests'] += 1
                     stats['Last 30 Seconds']['Internet Requests'] += 1
@@ -349,7 +349,7 @@ def main():
                     host_stats.incr('received_bytes', len(egress_internet.content))
 
             except Exception as e:
-                print(str(e) + ' error to: ' + egress_site)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + egress_site)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -364,7 +364,7 @@ def main():
 
             try:
                 eicar = eicar.get(eicar_url, timeout=3)
-                print('Malware downloaded: ' + eicar.text)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Malware downloaded: ' + eicar.text)
                 with lock:
                     stats['Total']['Malware'] += 1
                     stats['Last 30 Seconds']['Malware'] += 1
@@ -378,7 +378,7 @@ def main():
                     host_stats.incr('attacks')
 
             except Exception as e:
-                print(str(e) + ' error to: ' + eicar_url)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error to: ' + eicar_url)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -390,7 +390,7 @@ def main():
         def dga_attack(dga):
             try:
                 dga_response = socket.gethostbyname(dga)
-                print('DGA query sent: ' + dga + '   Response: ' + dga_response)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   DGA query sent: ' + dga + '   Response: ' + dga_response)
                 with lock:
                     stats['Total']['DGA'] += 1
                     stats['Last 30 Seconds']['DGA'] += 1
@@ -404,7 +404,7 @@ def main():
                     host_stats.incr('attacks')
 
             except Exception as e:
-                print(str(e) + ' error resolving: ' + dga)
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   ' + str(e) + ' error resolving: ' + dga)
                 with lock:
                     stats['Total']['Error'] += 1
                     stats['Last 30 Seconds']['Error'] += 1
@@ -419,7 +419,7 @@ def main():
             request_thread = threading.Thread(target=internal_request, args=(url,), daemon=True)
             request_thread.start()
         else:
-            print('Skipped internal request this run.')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Skipped internal request this run.')
 
         # Put each external internet request in its own thread
         if REQUEST_INTERNET:
