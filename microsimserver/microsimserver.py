@@ -262,9 +262,8 @@ class stats_httpd(BaseHTTPRequestHandler):
         self.wfile.write(body.encode('utf-8'))
 
 def statistics_server():
-    if STATS_PORT:
-        stats_server = ThreadingHTTPServer((HOST_NAME, int(STATS_PORT)), stats_httpd)
-        stats_server.serve_forever()
+    stats_server = ThreadingHTTPServer((HOST_NAME, int(STATS_PORT)), stats_httpd)
+    stats_server.serve_forever()
 
 def main():
     microservice = ThreadingHTTPServer((HOST_NAME, LISTEN_PORT), httpd)
@@ -285,7 +284,8 @@ def main():
                     'Directory Traversal': 0
                 }
 
-stats_thread = threading.Thread(target=statistics_server, daemon=True)
-stats_thread.start()
+if STATS_PORT:
+    stats_thread = threading.Thread(target=statistics_server, daemon=True)
+    stats_thread.start()
 
 main()
