@@ -210,7 +210,7 @@ def main():
 
         def internal_request(url):
             try:
-                response = requests.post(url, json=json_body)
+                response = requests.post(url, json=json_body, timeout=3)
                 print('Request to ' + response.url + '   Request size: ' + str(len(response.request.body)) + '   Response size: ' + str(len(response.content)))
                 with lock:
                     stats['Total']['Requests'] += 1
@@ -245,7 +245,7 @@ def main():
             }
 
             try:
-                sqli = requests.get(sqli_victim, params=parameters)
+                sqli = requests.get(sqli_victim, params=parameters, timeout=3)
                 print('SQLi sent: ' + sqli.url)
                 with lock:
                     stats['Total']['SQLi'] += 1
@@ -276,7 +276,7 @@ def main():
             }
 
             try:
-                xss = requests.get(xss_victim, params=parameters)
+                xss = requests.get(xss_victim, params=parameters, timeout=3)
                 print('XSS sent: ' + xss.url)
                 with lock:
                     stats['Total']['XSS'] += 1
@@ -307,7 +307,7 @@ def main():
             }
 
             try:
-                dirtraversal = requests.get(dt_victim, params=parameters)
+                dirtraversal = requests.get(dt_victim, params=parameters, timeout=3)
                 print('Directory Traversal sent: ' + dirtraversal.url)
                 with lock:
                     stats['Total']['Directory Traversal'] += 1
@@ -335,7 +335,7 @@ def main():
             egress_internet = requests.Session()
                 
             try:
-                egress_internet = egress_internet.get(egress_site, allow_redirects=True)
+                egress_internet = egress_internet.get(egress_site, allow_redirects=True, timeout=3)
                 print('Internet request to: ' + egress_internet.url)
                 with lock:
                     stats['Total']['Internet Requests'] += 1
@@ -364,7 +364,7 @@ def main():
             eicar_url = 'http://www.eicar.org/download/eicar.com.txt'
 
             try:
-                eicar = eicar.get(eicar_url)
+                eicar = eicar.get(eicar_url, timeout=3)
                 print('Malware downloaded: ' + eicar.text)
                 with lock:
                     stats['Total']['Malware'] += 1
@@ -459,7 +459,6 @@ def main():
                     xss_thread = threading.Thread(target=xss_attack, args=(xss_victim,), daemon=True)
                     xss_thread.start()
 
-        request_thread.join()
         time.sleep(REQUEST_WAIT_SECONDS)
 
 stats_thread = threading.Thread(target=statistics_server, daemon=True)
