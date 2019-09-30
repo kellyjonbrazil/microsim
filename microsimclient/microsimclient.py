@@ -182,9 +182,8 @@ def insert_data():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(REQUEST_BYTES)])
 
 def statistics_server():
-    if STATS_PORT:
-        stats_server = HTTPServer((HOST_NAME, int(STATS_PORT)), httpd)
-        stats_server.serve_forever()
+    stats_server = HTTPServer((HOST_NAME, int(STATS_PORT)), httpd)
+    stats_server.serve_forever()
 
 def main():
     while keep_running():
@@ -461,7 +460,8 @@ def main():
 
         time.sleep(REQUEST_WAIT_SECONDS)
 
-stats_thread = threading.Thread(target=statistics_server, daemon=True)
-stats_thread.start()
+if STATS_PORT:
+    stats_thread = threading.Thread(target=statistics_server, daemon=True)
+    stats_thread.start()
 
 main()
