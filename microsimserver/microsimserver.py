@@ -115,7 +115,7 @@ class httpd(BaseHTTPRequestHandler):
             host_stats.incr('sent_bytes', len(body))
             
         if re.search('UNION SELECT', urllib.parse.unquote_plus(self.path)):
-            print('SQLi attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   SQLi attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['SQLi'] += 1
@@ -129,7 +129,7 @@ class httpd(BaseHTTPRequestHandler):
                 host_stats.incr('sqli')
 
         if re.search('<script>alert', urllib.parse.unquote(self.path)):
-            print('XSS attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   XSS attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['XSS'] += 1
@@ -143,7 +143,7 @@ class httpd(BaseHTTPRequestHandler):
                 host_stats.incr('xss')
 
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
-            print('Directory Traversal attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Directory Traversal attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['Directory Traversal'] += 1
@@ -190,7 +190,7 @@ class httpd(BaseHTTPRequestHandler):
             host_stats.incr('received_bytes', int(self.headers['Content-Length']))
 
         if re.search(';UNION SELECT 1, version() limit 1,1--', urllib.parse.unquote(self.path)):
-            print('SQLi attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   SQLi attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['SQLi'] += 1
@@ -204,7 +204,7 @@ class httpd(BaseHTTPRequestHandler):
                 host_stats.incr('sqli')
 
         if re.search("pwd<script>alert('attacked')</script>", urllib.parse.unquote(self.path)):
-            print('XSS attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   XSS attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['XSS'] += 1
@@ -218,7 +218,7 @@ class httpd(BaseHTTPRequestHandler):
                 host_stats.incr('xss')
 
         if re.search('../../../../../passwd', urllib.parse.unquote(self.path)):
-            print('Directory Traversal attack detected')
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + '   Directory Traversal attack detected')
             with lock:
                 stats['Total']['Attacks'] += 1
                 stats['Total']['Directory Traversal'] += 1
