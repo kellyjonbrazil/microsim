@@ -3,6 +3,7 @@ microsimclient changelog
 20191001 v0.6
 - Add thread locking
 - Add datetime to log messages
+- Add request timeouts
 
 20190827 v0.5
 - Fix probabilities for attacks and internal requests
