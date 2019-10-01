@@ -1,5 +1,9 @@
 microsimserver changelog
 
+20191001 v0.6
+- Add thread locking
+- Add datetime to log messages
+
 20190827 v0.5
 - Add more configuration information to HTTP stats
 - Add STOP_PADDING parameter to add random seconds to STOP_SECONDS

@@ -204,22 +204,22 @@ Both the client and server log output to stdout, which will show up in docker an
 
 ### microsimclient:
 ```
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Directory Traversal sent: http://localhost:8080/?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd
-Internet request to: http://mirror.grid.uchicago.edu/pub/linux/centos/
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:50   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:50   Directory Traversal sent: http://localhost:8080/?username=joe%40example.com&password=..%2F..%2F..%2F..%2F..%2Fpasswd
+2019-09-30T16:53:50   Internet request to: http://mirror.grid.uchicago.edu/pub/linux/centos/
+2019-09-30T16:53:51   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 {"Total": {"Requests": 545, "Sent Bytes": 564620, "Received Bytes": 55301055, "Internet Requests": 58, "Attacks": 5, "SQLi": 0, "XSS": 0, "Directory Traversal": 2, "DGA": 3, "Malware": 0, "Error": 0}, "Last 30 Seconds": {"Requests": 42, "Sent Bytes": 43512, "Received Bytes": 4269205, "Internet Requests": 6, "Attacks": 1, "SQLi": 0, "XSS": 0, "Directory Traversal": 0, "DGA": 1, "Malware": 0, "Error": 0}}
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-DGA query sent: xdcc5481252db5f38d5fc18c9ad3b2f7fd.cn   Response: 23.202.231.169
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Internet request to: http://mirrors.oit.uci.edu/centos/
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
-Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:51   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:51   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:52   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:52   DGA query sent: xdcc5481252db5f38d5fc18c9ad3b2f7fd.cn   Response: 23.202.231.169
+2019-09-30T16:53:52   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:53   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:53   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:53   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:54   Internet request to: http://mirrors.oit.uci.edu/centos/
+2019-09-30T16:53:54   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
+2019-09-30T16:53:54   Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 ```
 
 ### microsimserver:
@@ -227,7 +227,7 @@ Request to http://localhost:8080/   Request size: 1036   Response size: 100172
 127.0.0.1 - - [26/Aug/2019 15:30:01] "POST / HTTP/1.1" 200 -
 127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
 127.0.0.1 - - [26/Aug/2019 15:30:02] "GET /?username=joe%40example.com&password=pwd%3Cscript%3Ealert%28%27attacked%27%29%3C%2Fscript%3E HTTP/1.1" 200 -
-XSS attack detected
+2019-09-30T16:53:50   XSS attack detected
 127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
 127.0.0.1 - - [26/Aug/2019 15:30:02] "POST / HTTP/1.1" 200 -
 {"Total": {"Requests": 391, "Sent Bytes": 6473451, "Received Bytes": 404040, "Attacks": 1, "SQLi": 0, "XSS": 1, "Directory Traversal": 0}, "Last 30 Seconds": {"Requests": 97, "Sent Bytes": 1605932, "Received Bytes": 100492, "Attacks": 0, "SQLi": 0, "XSS": 0, "Directory Traversal": 0}}
