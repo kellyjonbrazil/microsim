@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:
@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:
@@ -121,7 +121,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:
@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:
@@ -68,7 +68,7 @@ spec:
         - name: microsimserver
           image: kellybrazil/microsimserver
           ports:
-            - containerPort: 8080
+            - containerPort: 8080         # can i remove this?
           env:
             - name: STATS_PORT
               value: "5000"
@@ -89,7 +89,7 @@ spec:
     spec:
       containers:
         - name: modsecurity
-          image: owasp/modsecurity-crs
+          image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
             - containerPort: 80
           env:
@@ -100,7 +100,7 @@ spec:
         - name: microsimserver
           image: kellybrazil/microsimserver
           ports:
-            - containerPort: 8080
+            - containerPort: 8080         # can i remove this?
           env:
             - name: STATS_PORT
               value: "5000"
