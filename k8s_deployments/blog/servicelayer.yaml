@@ -13,15 +13,15 @@ spec:
         app: www
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://wwworigin.default.svc.cluster.local:8080/"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://wwworigin.default.svc.cluster.local:8080/"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,24 +38,22 @@ spec:
         app: wwworigin
     spec:
       containers:
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080
-          env:
-            - name: STATS_PORT
-              value: "5000"
-        - name: microsimclient
-          image: kellybrazil/microsimclient
-          env:
-            - name: STATS_PORT
-              value: "5001"
-            - name: REQUEST_URLS
-              value: "http://auth.default.svc.cluster.local:80/x,http://db.default.svc.cluster.local:80/x"
-            - name: REQUEST_INTERNET
-              value: "True"
-            - name: SEND_SQLI
-              value: "True"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        env:
+        - name: STATS_PORT
+          value: "5000"
+        ports:
+        - containerPort: 8080
+      - name: microsimclient
+        image: kellybrazil/microsimclient
+        env:
+        - name: REQUEST_URLS
+          value: "http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"
+        - name: SEND_SQLI
+          value: "True"
+        - name: STATS_PORT
+          value: "5001"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,15 +70,15 @@ spec:
         app: auth
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://authorigin.default.svc.cluster.local:8080/"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://authorigin.default.svc.cluster.local:8080/"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -97,13 +95,13 @@ spec:
         app: authorigin
     spec:
       containers:
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080
-          env:
-            - name: STATS_PORT
-              value: "5000"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        ports:
+        - containerPort: 8080
+        env:
+        - name: STATS_PORT
+          value: "5000"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -120,15 +118,15 @@ spec:
         app: db
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://dborigin.default.svc.cluster.local:8080/"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://dborigin.default.svc.cluster.local:8080/"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -145,13 +143,13 @@ spec:
         app: dborigin
     spec:
       containers:
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080
-          env:
-            - name: STATS_PORT
-              value: "5000"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        ports:
+        - containerPort: 8080
+        env:
+        - name: STATS_PORT
+          value: "5000"
 ---
 apiVersion: v1
 kind: Service
@@ -162,8 +160,8 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   ports:
-    - port: 80
-      targetPort: 80
+  - port: 80
+    targetPort: 80
   selector:
     app: www
   sessionAffinity: None
@@ -177,8 +175,8 @@ metadata:
   name: auth
 spec:
   ports:
-    - port: 80
-      targetPort: 80
+  - port: 8080
+    targetPort: 80
   selector:
     app: auth
   sessionAffinity: None
@@ -191,8 +189,8 @@ metadata:
   name: db
 spec:
   ports:
-    - port: 80
-      targetPort: 80
+  - port: 8080
+    targetPort: 80
   selector:
     app: db
   sessionAffinity: None
@@ -205,8 +203,8 @@ metadata:
   name: wwworigin
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
+  - port: 8080
+    targetPort: 8080
   selector:
     app: wwworigin
   sessionAffinity: None
@@ -219,8 +217,8 @@ metadata:
   name: authorigin
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
+  - port: 8080
+    targetPort: 8080
   selector:
     app: authorigin
   sessionAffinity: None
@@ -233,8 +231,8 @@ metadata:
   name: dborigin
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
+  - port: 8080
+    targetPort: 8080
   selector:
     app: dborigin
   sessionAffinity: None
