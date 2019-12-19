@@ -14,7 +14,7 @@ spec:
     - podSelector:
         matchLabels:
           app: www
-  - to:
+    to:
     ports:
     - protocol: TCP
       port: 8080
@@ -35,7 +35,7 @@ spec:
     - podSelector:
         matchLabels:
           app: wwworigin
-  - to:
+    to:
     ports:
     - protocol: TCP
       port: 80
@@ -56,7 +56,7 @@ spec:
     - podSelector:
         matchLabels:
           app: wwworigin
-  - to:
+    to:
     ports:
     - protocol: TCP
       port: 80
@@ -77,7 +77,7 @@ spec:
     - podSelector:
         matchLabels:
           app: auth
-  - to:
+    to:
     ports:
     - protocol: TCP
       port: 8080
@@ -98,7 +98,7 @@ spec:
     - podSelector:
         matchLabels:
           app: db
-  - to:
+    to:
     ports:
     - protocol: TCP
       port: 8080
