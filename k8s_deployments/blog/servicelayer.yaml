@@ -49,7 +49,7 @@ spec:
         image: kellybrazil/microsimclient
         env:
         - name: REQUEST_URLS
-          value: "http://auth.default.svc.cluster.local:8080,http://db.default.svc.cluster.local:8080"
+          value: "http://auth.default.svc.cluster.local:80,http://db.default.svc.cluster.local:80"
         - name: SEND_SQLI
           value: "True"
         - name: STATS_PORT
@@ -175,7 +175,7 @@ metadata:
   name: auth
 spec:
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 80
   selector:
     app: auth
@@ -189,7 +189,7 @@ metadata:
   name: db
 spec:
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 80
   selector:
     app: db
