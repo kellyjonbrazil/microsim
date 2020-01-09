@@ -16,17 +16,15 @@ spec:
         - name: modsecurity
           image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8081/"
+              value: "http://127.0.0.1:8080/"
         - name: microsimserver
           image: kellybrazil/microsimserver
           env:
-            - name: LISTEN_PORT
-              value: "8081"
             - name: STATS_PORT
               value: "5000"
         - name: microsimclient
@@ -64,12 +62,10 @@ spec:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8081/"
+              value: "http://127.0.0.1:8080/"
         - name: microsimserver
           image: kellybrazil/microsimserver
           env:
-            - name: LISTEN_PORT
-              value: "8081"
             - name: STATS_PORT
               value: "5000"
 ---
@@ -96,12 +92,10 @@ spec:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8081/"
+              value: "http://127.0.0.1:8080/"
         - name: microsimserver
           image: kellybrazil/microsimserver
           env:
-            - name: LISTEN_PORT
-              value: "8081"
             - name: STATS_PORT
               value: "5000"
 ---
