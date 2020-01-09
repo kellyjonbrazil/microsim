@@ -16,17 +16,17 @@ spec:
         - name: modsecurity
           image: owasp/modsecurity-crs:v3.2-modsec2-apache
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
+              value: "http://127.0.0.1:8081/"
         - name: microsimserver
           image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080
           env:
+            - name: LISTEN_PORT
+              value: "8081"
             - name: STATS_PORT
               value: "5000"
         - name: microsimclient
@@ -35,7 +35,7 @@ spec:
             - name: STATS_PORT
               value: "5001"
             - name: REQUEST_URLS
-              value: "http://auth.default.svc.cluster.local:80/x,http://db.default.svc.cluster.local:80/x"
+              value: "http://auth.default.svc.cluster.local:8080/,http://db.default.svc.cluster.local:8080/"
             - name: REQUEST_INTERNET
               value: "True"
             - name: SEND_SQLI
@@ -64,12 +64,12 @@ spec:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
+              value: "http://127.0.0.1:8081/"
         - name: microsimserver
           image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080         # can i remove this?
           env:
+            - name: LISTEN_PORT
+              value: "8081"
             - name: STATS_PORT
               value: "5000"
 ---
@@ -96,12 +96,12 @@ spec:
             - name: SETPROXY
               value: "True"
             - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
+              value: "http://127.0.0.1:8081/"
         - name: microsimserver
           image: kellybrazil/microsimserver
-          ports:
-            - containerPort: 8080         # can i remove this?
           env:
+            - name: LISTEN_PORT
+              value: "8081"
             - name: STATS_PORT
               value: "5000"
 ---
@@ -114,7 +114,7 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 80
   selector:
     app: www
@@ -129,7 +129,7 @@ metadata:
   name: auth
 spec:
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 80
   selector:
     app: auth
@@ -143,7 +143,7 @@ metadata:
   name: db
 spec:
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 80
   selector:
     app: db
