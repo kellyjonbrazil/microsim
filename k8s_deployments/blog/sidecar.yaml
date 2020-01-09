@@ -13,29 +13,29 @@ spec:
         app: www
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          env:
-            - name: STATS_PORT
-              value: "5000"
-        - name: microsimclient
-          image: kellybrazil/microsimclient
-          env:
-            - name: STATS_PORT
-              value: "5001"
-            - name: REQUEST_URLS
-              value: "http://auth.default.svc.cluster.local:8080/,http://db.default.svc.cluster.local:8080/"
-            - name: SEND_SQLI
-              value: "True"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://127.0.0.1:8080/"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        env:
+        - name: STATS_PORT
+          value: "5000"
+      - name: microsimclient
+        image: kellybrazil/microsimclient
+        env:
+        - name: STATS_PORT
+          value: "5001"
+        - name: REQUEST_URLS
+          value: "http://auth.default.svc.cluster.local:8080/,http://db.default.svc.cluster.local:8080/"
+        - name: SEND_SQLI
+          value: "True"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -52,20 +52,20 @@ spec:
         app: auth
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          env:
-            - name: STATS_PORT
-              value: "5000"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://127.0.0.1:8080/"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        env:
+        - name: STATS_PORT
+          value: "5000"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -82,20 +82,20 @@ spec:
         app: db
     spec:
       containers:
-        - name: modsecurity
-          image: owasp/modsecurity-crs:v3.2-modsec2-apache
-          ports:
-            - containerPort: 80
-          env:
-            - name: SETPROXY
-              value: "True"
-            - name: PROXYLOCATION
-              value: "http://127.0.0.1:8080/"
-        - name: microsimserver
-          image: kellybrazil/microsimserver
-          env:
-            - name: STATS_PORT
-              value: "5000"
+      - name: modsecurity
+        image: owasp/modsecurity-crs:v3.2-modsec2-apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: SETPROXY
+          value: "True"
+        - name: PROXYLOCATION
+          value: "http://127.0.0.1:8080/"
+      - name: microsimserver
+        image: kellybrazil/microsimserver
+        env:
+        - name: STATS_PORT
+          value: "5000"
 ---
 apiVersion: v1
 kind: Service
@@ -106,8 +106,8 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   ports:
-    - port: 8080
-      targetPort: 80
+  - port: 8080
+    targetPort: 80
   selector:
     app: www
   sessionAffinity: None
@@ -121,8 +121,8 @@ metadata:
   name: auth
 spec:
   ports:
-    - port: 8080
-      targetPort: 80
+  - port: 8080
+    targetPort: 80
   selector:
     app: auth
   sessionAffinity: None
@@ -135,8 +135,8 @@ metadata:
   name: db
 spec:
   ports:
-    - port: 8080
-      targetPort: 80
+  - port: 8080
+    targetPort: 80
   selector:
     app: db
   sessionAffinity: None
