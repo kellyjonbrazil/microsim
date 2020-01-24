@@ -4,7 +4,9 @@ metadata:
   name: www-gateway
 spec:
   selector:
-    istio: ingressgateway # use Istio default gateway implementation
+    app: istio-ingressgateway
+    istio: ingressgateway
+    release: istio
   servers:
   - port:
       number: 80
@@ -25,7 +27,7 @@ spec:
   http:
   - match:
     - uri:
-        prefix: /
+        prefix: "/"
     route:
     - destination:
         port:
