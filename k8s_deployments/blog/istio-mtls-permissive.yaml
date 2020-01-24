@@ -3,7 +3,8 @@ kind: "Policy"
 metadata:
   name: "default"
   namespace: "default"
-peers:
+spec:
+  peers:
   - mtls: {}
 ---
 apiVersion: "networking.istio.io/v1alpha3"

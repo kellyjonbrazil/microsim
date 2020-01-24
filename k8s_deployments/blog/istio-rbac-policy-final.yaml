@@ -1,13 +1,4 @@
 apiVersion: "rbac.istio.io/v1alpha1"
-kind: ClusterRbacConfig
-metadata:
-  name: default
-spec:
-  mode: 'ON_WITH_INCLUSION'
-  inclusion:
-    namespaces: ["default"]
----
-apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRole
 metadata:
   name: www-access-role
@@ -29,3 +20,26 @@ spec:
   roleRef:
     kind: ServiceRole
     name: "www-access-role"
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRole
+metadata:
+  name: pub-access-role
+  namespace: default
+spec:
+  rules:
+  - services: ["www.default.svc.cluster.local"]
+    methods: ["GET", "POST"]
+    paths: ["*"]
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRoleBinding
+metadata:
+  name: pub-to-www
+  namespace: default
+spec:
+  subjects:
+  - user: "*"
+  roleRef:
+    kind: ServiceRole
+    name: "pub-access-role"

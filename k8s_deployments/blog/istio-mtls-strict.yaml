@@ -3,7 +3,8 @@ kind: "Policy"
 metadata:
   name: "default"
   namespace: "default"
-peers:
+spec:
+  peers:
   - mtls:
       mode: STRICT
 ---
@@ -17,3 +18,12 @@ spec:
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ClusterRbacConfig
+metadata:
+  name: default
+spec:
+  mode: 'ON_WITH_INCLUSION'
+  inclusion:
+    namespaces: ["default"]
