@@ -67,7 +67,7 @@ spec:
     metadata:
       labels:
         app: auth
-        version: v1.0
+        version: v1.0        # add version
     spec:
       serviceAccountName: auth       # add serviceAccountName
       containers:

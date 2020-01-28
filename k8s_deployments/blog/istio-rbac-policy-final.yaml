@@ -12,7 +12,7 @@ spec:
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRoleBinding
 metadata:
-  name: www-to-db
+  name: www-to-db-auth
   namespace: default
 spec:
   subjects:
