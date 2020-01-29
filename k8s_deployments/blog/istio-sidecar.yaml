@@ -41,6 +41,8 @@ spec:
           value: "http://127.0.0.1:8080/"
       - name: microsimserver
         image: kellybrazil/microsimserver
+        ports:
+        - containerPort: 8080       # add microsimserver port
         env:
         - name: STATS_PORT
           value: "5000"
@@ -82,6 +84,8 @@ spec:
           value: "http://127.0.0.1:8080/"
       - name: microsimserver
         image: kellybrazil/microsimserver
+        ports:
+        - containerPort: 8080        # add microsimserver port
         env:
         - name: STATS_PORT
           value: "5000"
@@ -114,6 +118,8 @@ spec:
           value: "http://127.0.0.1:8080/"
       - name: microsimserver
         image: kellybrazil/microsimserver
+        ports:
+        - containerPort: 8080         # add microsimserver port
         env:
         - name: STATS_PORT
           value: "5000"
