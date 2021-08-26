@@ -1,5 +1,7 @@
 # microsim (Microservice Simulator)
 
+> See my series of articles on [microservice securiy patterns](https://blog.kellybrazil.com/2019/12/05/microservice-security-design-patterns-for-kubernetes-part-1/) to see `microsim` in action
+
 The purpose of this project is to be able to easily set up kubernetes deployments with somewhat realistic/controllable traffic and attacks to test load balancing, WAF, and other security solutions in the cluster.
 
 Also available on Docker Hub:
